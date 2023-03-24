@@ -108,9 +108,9 @@ format_strs = {
 	types.DELETION_QUEUED: em("{count} messages matched, deletion was queued."),
 	types.PROMOTED_MOD: em("You've been promoted to moderator, run /modhelp for a list of commands."),
 	types.PROMOTED_ADMIN: em("You've been promoted to admin, run /adminhelp for a list of commands."),
-	types.KARMA_THANK_YOU: em("You just gave this user some sweet karma, awesome!"),
+	types.KARMA_THANK_YOU: em("You just fed the fuck out of that user, awesome!"),
 	types.KARMA_NOTIFICATION:
-		em( "You've just been given sweet karma! (check /info to see your karma"+
+		em( "You've just been fed! (check /info to see your calories"+
 			" or /toggleKarma to turn these notifications off)" ),
 	types.DM_REQUEST_NOTIFICATION: lambda username, **_: em( "{username!x} has requested contact in response to this message." + 
 			"\nRun /toggleRequests to turn these notifications off." ),
@@ -145,7 +145,7 @@ format_strs = {
 
 	types.USER_INFO: lambda warnings, cooldown, **_:
 		"<b>id</b>: {id}, <b>username</b>: {username!x}, <b>rank</b>: {rank_i} ({rank})\n"+
-		"<b>karma</b>: {karma}\n"+
+		"<b>calories</b>: {karma}\n"+
 		"<b>warnings</b>: {warnings} " + smiley(warnings)+
 		( " (one warning will be removed on {warnExpiry!t})" if warnings > 0 else "" ) + ", "+
 		"<b>cooldown</b>: "+
