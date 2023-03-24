@@ -249,6 +249,7 @@ def get_info(user):
 		"warnings": user.warnings,
 		"warnExpiry": user.warnExpiry,
 		"cooldown": user.cooldownUntil if user.isInCooldown() else None,
+		"filterTags": ", ".join(user.getTags()),
 	}
 	return rp.Reply(rp.types.USER_INFO, **params)
 
@@ -318,6 +319,19 @@ def toggle_requests(user):
 		user.hideRequests = not user.hideRequests
 		new = user.hideRequests
 	return rp.Reply(rp.types.BOOLEAN_CONFIG, description="DM request notifications", enabled=not new)
+
+@requireUser
+def toggle_filter(user, tag_name=None):
+	new = True
+	with db.modifyUser(id=user.id) as user:
+		tags = user.getTags()
+		if tag_name in tags:
+			tags.remove(tag_name)
+			user.filterTags = ":".join(utags)
+		else:
+			user.filterTags += ":" + tag_name
+			new = True
+	return rp.Reply(rp.types.TAG_FILTERED_SUCCESS, tag=tag_name, enabled=new)
 
 @requireUser
 def get_tripcode(user):

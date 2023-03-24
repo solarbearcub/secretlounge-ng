@@ -776,14 +776,15 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False, spoiler=
 			force_caption = fmt
 
 	ev_tosend.spoiler = spoiler
+	tags = []
+	if ev.caption is not None:
+		tags = extract_tags(ev.caption)
 	# find out which message is being replied to
 	reply_msid = None
 	if ev.reply_to_message is not None:
 		reply_msid = ch.lookupMapping(ev.from_user.id, data=ev.reply_to_message.message_id)
 		if reply_msid is None:
 			logging.warning("Message replied to not found in cache")
-
-	tags = extract_tags(ev.caption)
 
 	# relay message to all other users
 	logging.debug("relay(): msid=%d reply_msid=%r", msid, reply_msid)
@@ -793,7 +794,7 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False, spoiler=
 		if user2 == user and not user.debugEnabled:
 			ch.saveMapping(user2.id, msid, ev.message_id)
 			continue
-		filters = user2.filterTags.split(":")
+		filters = user2.getTags()
 		for tag in tags:
 			if tag in filters:		
 				ev_tosend.spoiler = True

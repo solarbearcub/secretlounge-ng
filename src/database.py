@@ -64,6 +64,8 @@ class User():
 		return self.cooldownUntil is not None and self.cooldownUntil >= datetime.now()
 	def isBlacklisted(self):
 		return self.rank < 0
+	def getTags(self):
+		return self.filterTags.split(":")
 	def getObfuscatedId(self):
 		salt = date.today().toordinal()
 		if salt & 0xff == 0: salt >>= 8 # zero bits are bad for hashing
