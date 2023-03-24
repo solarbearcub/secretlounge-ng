@@ -43,6 +43,7 @@ toggledebug - Toggle debug mode (sends back all messages to you)
 togglekarma - Toggle karma notifications
 togglerequests - Toggle DM request notifications
 tripcode - Show or set the tripcode for your messages
+x - Spoiler a message (blurs media, only available for captionable attachments)
 ```
 
 ## FAQ

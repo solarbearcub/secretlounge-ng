@@ -67,7 +67,7 @@ def init(config, _db, _ch):
 		"start", "stop", "users", "info", "motd", "toggledebug", "togglekarma", 
 		"togglerequests", "version", "source", "modhelp", "adminhelp", "modsay", 
 		"adminsay", "mod", "admin", "warn", "delete", "remove", "uncooldown", 
-		"blacklist", "s", "sign", "tripcode", "t", "tsign", "cleanup"
+		"blacklist", "s", "sign", "tripcode", "t", "tsign", "cleanup", "x"
 	]
 	for c in cmds: # maps /<c> to the function cmd_<c>
 		c = c.lower()
@@ -361,6 +361,9 @@ def resend_message(chat_id, ev, reply_to=None, force_caption: FormattedMessage=N
 				kwargs["parse_mode"] = "HTML"
 		else:
 			kwargs["caption"] = ev.caption
+		if ev.spoiler == True:
+			kwargs["has_spoiler"] = True
+	
 
 	# re-send message based on content type
 	if ev.content_type == "text":
@@ -411,6 +414,8 @@ def send_to_single_inner(chat_id, ev, reply_to=None, force_caption=None):
 			kwargs2["allow_sending_without_reply"] = True
 		if ev.type == rp.types.CUSTOM:
 			kwargs2["disable_web_page_preview"] = True
+		if ev.content_type in CAPTIONABLE_TYPES and ev.spoiler == True:
+			kwargs2["has_spoiler"] = True
 		return bot.send_message(chat_id, rp.formatForTelegram(ev), parse_mode="HTML", **kwargs2)
 	elif isinstance(ev, FormattedMessage):
 		kwargs2 = {}
@@ -419,6 +424,8 @@ def send_to_single_inner(chat_id, ev, reply_to=None, force_caption=None):
 			kwargs2["allow_sending_without_reply"] = True
 		if ev.html:
 			kwargs2["parse_mode"] = "HTML"
+		if ev.content_type in CAPTIONABLE_TYPES and ev.spoiler == True:
+			kwargs2["has_spoiler"] = True
 		return bot.send_message(chat_id, ev.content, **kwargs2)
 
 	return resend_message(chat_id, ev, reply_to=reply_to, force_caption=force_caption)
@@ -705,6 +712,8 @@ def relay(ev):
 	# manually handle signing / tripcodes for media since captions don't count for commands
 	if not is_forward(ev) and ev.content_type in CAPTIONABLE_TYPES and (ev.caption or "").startswith("/"):
 		c, arg = split_command(ev.caption)
+		if c == "x":
+			return relay_inner(ev, caption_text=arg, spoiler=True)
 		if c in ("s", "sign"):
 			return relay_inner(ev, caption_text=arg, signed=True)
 		elif c in ("t", "tsign"):
@@ -715,7 +724,7 @@ def relay(ev):
 # relay the message `ev` to other users in the chat
 # `caption_text` can be a FormattedMessage that overrides the caption of media
 # `signed` and `tripcode` indicate if the message is signed or tripcoded respectively
-def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False):
+def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False, spoiler=False):
 	is_media = is_forward(ev) or ev.content_type in MEDIA_FILTER_TYPES
 	msid = core.prepare_user_message(UserContainer(ev.from_user), calc_spam_score(ev),
 		is_media=is_media, signed=signed, tripcode=tripcode)
@@ -751,6 +760,7 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False):
 		else:
 			force_caption = fmt
 
+	ev_tosend.spoiler = spoiler
 	# find out which message is being replied to
 	reply_msid = None
 	if ev.reply_to_message is not None:
@@ -776,6 +786,13 @@ def cmd_sign(ev, arg):
 	relay_inner(ev, signed=True)
 
 cmd_s = cmd_sign # alias
+
+@takesArgument()
+def cmd_spoiler(ev, arg):
+	ev.text = arg
+	relay_inner(ev, spoiler=True)
+
+cmd_x = cmd_spoiler
 
 @takesArgument()
 def cmd_tsign(ev, arg):
