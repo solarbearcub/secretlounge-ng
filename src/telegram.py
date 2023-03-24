@@ -761,9 +761,7 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False, spoiler=
 		else:
 			force_caption = fmt
 
-	if spoiler:
-		
-		ev_tosend.spoiler = True
+	ev_tosend.spoiler = spoiler
 	# find out which message is being replied to
 	reply_msid = None
 	if ev.reply_to_message is not None:
