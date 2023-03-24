@@ -414,7 +414,7 @@ def send_to_single_inner(chat_id, ev, reply_to=None, force_caption=None):
 			kwargs2["allow_sending_without_reply"] = True
 		if ev.type == rp.types.CUSTOM:
 			kwargs2["disable_web_page_preview"] = True
-		if ev.spoiler == True:
+		if getattr(ev, 'spoiler', False):
 			kwargs2["has_spoiler"] = True
 		return bot.send_message(chat_id, rp.formatForTelegram(ev), parse_mode="HTML", **kwargs2)
 	elif isinstance(ev, FormattedMessage):
@@ -424,7 +424,7 @@ def send_to_single_inner(chat_id, ev, reply_to=None, force_caption=None):
 			kwargs2["allow_sending_without_reply"] = True
 		if ev.html:
 			kwargs2["parse_mode"] = "HTML"
-		if ev.spoiler == True:
+		if getattr(ev, 'spoiler', False):
 			kwargs2["has_spoiler"] = True
 		return bot.send_message(chat_id, ev.content, **kwargs2)
 
