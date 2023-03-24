@@ -713,7 +713,7 @@ def relay(ev):
 	if not is_forward(ev) and ev.content_type in CAPTIONABLE_TYPES and (ev.caption or "").startswith("/"):
 		c, arg = split_command(ev.caption)
 		if c == "x":
-			arg = arg.replace("/x", "")
+			arg = arg.replace("/x", "", 1)
 			return relay_inner(ev, caption_text=arg, spoiler=True)
 		if c in ("s", "sign"):
 			return relay_inner(ev, caption_text=arg, signed=True)
