@@ -65,7 +65,7 @@ def init(config, _db, _ch):
 
 	cmds = [
 		"start", "stop", "users", "info", "motd", "toggledebug", "togglekarma", 
-		"togglerequests", "version", "source", "modhelp", "adminhelp", "modsay", 
+		"togglerequests", "togglefilter", "version", "source", "modhelp", "adminhelp", "modsay", 
 		"adminsay", "mod", "admin", "warn", "delete", "remove", "uncooldown", 
 		"blacklist", "s", "sign", "tripcode", "t", "tsign", "cleanup", "x"
 	]
