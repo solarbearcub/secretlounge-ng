@@ -65,7 +65,8 @@ class User():
 	def isBlacklisted(self):
 		return self.rank < 0
 	def getTags(self):
-		return self.filterTags.split(":")
+		tags = self.filterTags.split(":")
+		return [x for x in tags if x] #Don't include empty strings off the edge of the tag list
 	def getObfuscatedId(self):
 		salt = date.today().toordinal()
 		if salt & 0xff == 0: salt >>= 8 # zero bits are bad for hashing
