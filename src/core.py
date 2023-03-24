@@ -327,7 +327,7 @@ def toggle_filter(user, tag_name=None):
 		tags = user.getTags()
 		if tag_name in tags:
 			tags.remove(tag_name)
-			user.filterTags = ":".join(utags)
+			user.filterTags = ":".join(tags)
 		else:
 			user.filterTags += ":" + tag_name
 			new = True
