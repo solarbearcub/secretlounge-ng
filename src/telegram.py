@@ -3,6 +3,7 @@ import logging
 import time
 import json
 import re
+import copy
 
 import src.core as core
 import src.replies as rp
@@ -796,8 +797,12 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False, spoiler=
 			continue
 		filters = user2.getTags()
 		for tag in tags:
-			if tag in filters:		
-				ev_tosend.spoiler = True
+			if tag in filters:
+				ev_filtered = copy.deepcopy(ev_tosend)		
+				ev_filtered.spoiler = True
+				send_to_single(ev_filtered, msid, user2,
+			reply_msid=reply_msid, force_caption=force_caption)
+				continue
 		send_to_single(ev_tosend, msid, user2,
 			reply_msid=reply_msid, force_caption=force_caption)
 
