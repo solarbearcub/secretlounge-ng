@@ -713,6 +713,7 @@ def relay(ev):
 	if not is_forward(ev) and ev.content_type in CAPTIONABLE_TYPES and (ev.caption or "").startswith("/"):
 		c, arg = split_command(ev.caption)
 		if c == "x":
+			arg = arg.replace("/x", "")
 			return relay_inner(ev, caption_text=arg, spoiler=True)
 		if c in ("s", "sign"):
 			return relay_inner(ev, caption_text=arg, signed=True)
@@ -760,7 +761,9 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False, spoiler=
 		else:
 			force_caption = fmt
 
-	ev_tosend.spoiler = spoiler
+	if spoiler:
+		
+		ev_tosend.spoiler = True
 	# find out which message is being replied to
 	reply_msid = None
 	if ev.reply_to_message is not None:
