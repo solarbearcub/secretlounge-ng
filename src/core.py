@@ -507,7 +507,7 @@ def request_dm(user, msid):
 	return rp.Reply(rp.types.DM_REQUEST_ACKNOWLEDGEMENT)
 
 @requireUser
-def prepare_user_message(user: User, msg_score, *, is_media=False, signed=False, tripcode=False):
+def prepare_user_message(user: User, msg_score, *, is_media=False, signed=False, tripcode=False, spoiler=False):
 	# prerequisites
 	if user.isInCooldown():
 		return rp.Reply(rp.types.ERR_COOLDOWN, until=user.cooldownUntil)
@@ -518,6 +518,8 @@ def prepare_user_message(user: User, msg_score, *, is_media=False, signed=False,
 	if is_media and user.rank < RANKS.mod and media_limit_period is not None:
 		if (datetime.now() - user.joined) < media_limit_period:
 			return rp.Reply(rp.types.ERR_MEDIA_LIMIT)
+	if spoiler and not is_media:
+		return rp.Reply(rp.types.ERR_SPOIL_NONMEDIA)
 
 	ok = spam_scores.increaseSpamScore(user.id, msg_score)
 	if not ok:
