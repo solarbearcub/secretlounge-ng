@@ -194,6 +194,13 @@ def calc_spam_score(ev):
 	s += len(ev.text) * SCORE_TEXT_CHARACTER + ev.text.count("\n") * SCORE_TEXT_LINEBREAK
 	return s
 
+def extract_tags(text):
+    tag_list = []
+    for word in text.split():
+        if word[0] == '#':
+            tag_list.append(word[1:].lower())
+    return tag_list
+
 ###
 
 # Formatting for user messages, which are largely passed through as-is
@@ -444,6 +451,7 @@ def send_to_single(ev, msid, user, *, reply_msid=None, force_caption=None):
 	def f():
 		while True:
 			try:
+
 				ev2 = send_to_single_inner(user_id, ev, reply_to, force_caption)
 			except telebot.apihelper.ApiException as e:
 				retry = check_telegram_exc(e, user_id)
@@ -586,6 +594,12 @@ def cmd_motd(ev, arg):
 cmd_toggledebug = wrap_core(core.toggle_debug)
 cmd_togglekarma = wrap_core(core.toggle_karma)
 cmd_togglerequests = wrap_core(core.toggle_requests)
+
+@takesArgument(optional=False)
+def cmd_togglefilter(ev, arg):
+	c_user = UserContainer(ev.from_user)
+	tag = arg.replace("#", "").lower()
+	send_answer(ev, core.toggle_filter(c_user, tag), reply_to=True)
 
 @takesArgument(optional=True)
 def cmd_tripcode(ev, arg):
@@ -769,6 +783,8 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False, spoiler=
 		if reply_msid is None:
 			logging.warning("Message replied to not found in cache")
 
+	tags = extract_tags(ev.caption)
+
 	# relay message to all other users
 	logging.debug("relay(): msid=%d reply_msid=%r", msid, reply_msid)
 	for user2 in db.iterateUsers():
@@ -777,7 +793,10 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False, spoiler=
 		if user2 == user and not user.debugEnabled:
 			ch.saveMapping(user2.id, msid, ev.message_id)
 			continue
-
+		filters = user2.filterTags.split(":")
+		for tag in tags:
+			if tag in filters:		
+				ev_tosend.spoiler = True
 		send_to_single(ev_tosend, msid, user2,
 			reply_msid=reply_msid, force_caption=force_caption)
 

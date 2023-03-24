@@ -45,6 +45,7 @@ types = NumericEnum([
 	"DM_REQUEST_ACKNOWLEDGEMENT",
 	"TRIPCODE_INFO",
 	"TRIPCODE_SET",
+	"TAG_FILTERED_SUCCESS",
 
 	"ERR_COMMAND_DISABLED",
 	"ERR_NO_REPLY",
@@ -118,6 +119,8 @@ format_strs = {
 	types.TRIPCODE_INFO: lambda tripcode, **_:
 		"<b>tripcode</b>: " + ("<code>{tripcode!x}</code>" if tripcode is not None else "unset"),
 	types.TRIPCODE_SET: em("Tripcode set. It will appear as: ") + "<b>{tripname!x}</b> <code>{tripcode!x}</code>",
+	types.TAG_FILTERED_SUCCESS: lambda tag, enabled, **_:
+		"Filter on {tag!x} has been " + (enabled and "enabled" or "disabled"),
 
 	types.ERR_COMMAND_DISABLED: em("This command has been disabled."),
 	types.ERR_NO_REPLY: em("You need to reply to a message to use this command."),
