@@ -329,7 +329,8 @@ def toggle_filter(user, tag_name=None):
 			tags.remove(tag_name)
 			user.filterTags = ":".join(tags)
 		else:
-			user.filterTags += tag_name + ":"
+			tags.append(tag_name)
+			user.filterTags = ":".join(tags)
 			new = True
 	return rp.Reply(rp.types.TAG_FILTERED_SUCCESS, tag=tag_name, enabled=new)
 
