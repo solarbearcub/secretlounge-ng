@@ -796,14 +796,16 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False, spoiler=
 			ch.saveMapping(user2.id, msid, ev.message_id)
 			continue
 		filters = user2.getTags()
+		filtered = False
 		for tag in tags:
 			if tag in filters:
-				ev_filtered = copy.deepcopy(ev_tosend)		
+				filtered = True
+				ev_filtered = copy.deepcopy(ev_tosend)
 				ev_filtered.spoiler = True
 				send_to_single(ev_filtered, msid, user2,
 			reply_msid=reply_msid, force_caption=force_caption)
-				continue
-		send_to_single(ev_tosend, msid, user2,
+		if not filtered:
+			send_to_single(ev_tosend, msid, user2,
 			reply_msid=reply_msid, force_caption=force_caption)
 
 @takesArgument()
