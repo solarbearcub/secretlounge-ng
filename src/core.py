@@ -294,7 +294,7 @@ def get_motd(user):
 @requireUser
 def get_tags(user):
 	tags = db.getSystemConfig().tags
-	return rp.Reply(rp.types.CUSTOM, text=", ".join(tags))
+	return rp.Reply(rp.types.TAG_LIST, taglist_str=", ".join(tags))
 
 @requireUser
 @requireRank(RANKS.admin)

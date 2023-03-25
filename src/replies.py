@@ -47,6 +47,7 @@ types = NumericEnum([
 	"TRIPCODE_SET",
 	"TAG_FILTERED_SUCCESS",
 	"TAG_ADDED_SUCCESS",
+	"TAG_LIST",
 
 	"ERR_COMMAND_DISABLED",
 	"ERR_NO_REPLY",
@@ -121,6 +122,7 @@ format_strs = {
 	types.TRIPCODE_INFO: lambda tripcode, **_:
 		"<b>tripcode</b>: " + ("<code>{tripcode!x}</code>" if tripcode is not None else "unset"),
 	types.TRIPCODE_SET: em("Tripcode set. It will appear as: ") + "<b>{tripname!x}</b> <code>{tripcode!x}</code>",
+	types.TAG_LIST: lambda taglist_str, **_: em("Supported tags:\n") + taglist_str,
 	types.TAG_FILTERED_SUCCESS: lambda tag, enabled, **_:
 		"Filter on #{tag!x} has been " + (enabled and "enabled" or "disabled"),
 	types.TAG_ADDED_SUCCESS: lambda tag, enabled, **_:
