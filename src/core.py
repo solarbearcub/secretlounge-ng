@@ -317,7 +317,7 @@ def set_tag(user, tag):
 			tags.append(tag)
 			new = True
 		config.tags = ":".join(tags)
-	return rp.Reply(rp.types.TAG_ADDED_SUCCESS, tag=tag, new=new)
+	return rp.Reply(rp.types.TAG_ADDED_SUCCESS, tag=tag, enabled=new)
 
 @requireUser
 def toggle_debug(user):
