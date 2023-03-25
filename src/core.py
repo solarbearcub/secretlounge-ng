@@ -293,7 +293,7 @@ def get_motd(user):
 
 @requireUser
 def get_tags(user):
-	tags = db.getSystemConfig().tags
+	tags = db.getSystemConfig().getTags()
 	return rp.Reply(rp.types.TAG_LIST, taglist_str=", ".join(tags))
 
 @requireUser
