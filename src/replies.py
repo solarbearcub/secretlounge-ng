@@ -188,6 +188,7 @@ format_strs = {
 		"  /adminhelp - show this text\n"+
 		"  /adminsay &lt;message&gt; - send an official admin message\n"+
 		"  /motd &lt;message&gt; - set the welcome message (HTML formatted)\n"+
+		"  /toggletag &lt;tag&gt; - toggle a tag in/out of the supported filter list\n"+
 		"  /uncooldown &lt;id | username&gt; - remove cooldown from an user\n"+
 		"  /mod &lt;username&gt; - promote an user to the moderator rank\n"+
 		"  /admin &lt;username&gt; - promote an user to the admin rank\n"+
