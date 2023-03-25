@@ -17,6 +17,9 @@ class SystemConfig():
 	def defaults(self):
 		self.motd = ""
 		self.tags = ""
+	def getTags(self):
+		tags = self.tags.split(":")
+		return [x.lower().trim() for x in tags if x]
 
 USER_PROPS = (
 	"id", "username", "realname", "rank", "joined", "left", "lastActive",

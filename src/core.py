@@ -307,10 +307,10 @@ def set_motd(user, arg):
 @requireUser
 @requireRank(RANKS.admin)
 def set_tag(user, tag):
-	tag = tag.replace("#", "").lower()
+	tag = tag.replace("#", "").lower().trim()
 	new = False
 	with db.modifySystemConfig() as config:
-		tags = config.tags.split(":")
+		tags = db.getSystemConfig().getTags()
 		if tag in tags:
 			tags.remove(tag)
 		else:
