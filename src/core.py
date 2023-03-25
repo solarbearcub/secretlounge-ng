@@ -316,7 +316,7 @@ def set_tag(user, tag):
 		else:
 			tags.append(tag)
 			new = True
-		config.tags = tags.join(":")
+		config.tags = ":".join(tags)
 	return rp.Reply(rp.types.TAG_ADDED_SUCCESS, tag=tag, new=new)
 
 @requireUser
