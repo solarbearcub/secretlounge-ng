@@ -292,12 +292,32 @@ def get_motd(user):
 	return rp.Reply(rp.types.CUSTOM, text=motd)
 
 @requireUser
+def get_tags(user):
+	tags = db.getSystemConfig().tags
+	return rp.Reply(rp.types.CUSTOM, text=", ".join(tags))
+
+@requireUser
 @requireRank(RANKS.admin)
 def set_motd(user, arg):
 	with db.modifySystemConfig() as config:
 		config.motd = arg
 	logging.info("%s set motd to: %r", user, arg)
 	return rp.Reply(rp.types.SUCCESS)
+
+@requireUser
+@requireRank(RANKS.admin)
+def set_tag(user, tag):
+	tag = tag.replace("#", "").lower()
+	new = False
+	with db.modifySystemConfig() as config:
+		tags = config.tags.split(":")
+		if tag in tags:
+			tags.remove(tag)
+		else:
+			tags.append(tag)
+			new = True
+		config.tags = tags.join(":")
+	return rp.Reply(rp.types.TAG_ADDED_SUCCESS, tag=tag, new=new)
 
 @requireUser
 def toggle_debug(user):
@@ -323,8 +343,11 @@ def toggle_requests(user):
 @requireUser
 def toggle_filter(user, tag_name=None):
 	new = False
+	supported_tags = db.getSystemConfig().tags.split(":")
 	with db.modifyUser(id=user.id) as user:
 		tags = user.getTags()
+		if tag_name not in supported_tags:
+			return rp.Reply(rp.types.ERR_UNSUPPORTED_TAG, tag=tag_name)
 		if tag_name in tags:
 			tags.remove(tag_name)
 			user.filterTags = ":".join(tags)

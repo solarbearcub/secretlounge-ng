@@ -13,8 +13,10 @@ from src.globals import *
 class SystemConfig():
 	def __init__(self):
 		self.motd = None
+		self.tags = None
 	def defaults(self):
 		self.motd = ""
+		self.tags = ""
 
 USER_PROPS = (
 	"id", "username", "realname", "rank", "joined", "left", "lastActive",
@@ -184,12 +186,13 @@ class JSONDatabase(Database):
 		return
 	@staticmethod
 	def _systemConfigToDict(config):
-		return {"motd": config.motd}
+		return {"motd": config.motd, "tags": config.tags}
 	@staticmethod
 	def _systemConfigFromDict(d):
 		if d is None: return None
 		config = SystemConfig()
 		config.motd = d["motd"]
+		config.tags = d["tags"]
 		return config
 	@staticmethod
 	def _userToDict(user):
@@ -282,12 +285,13 @@ class SQLiteDatabase(Database):
 			self.db.close()
 	@staticmethod
 	def _systemConfigToDict(config):
-		return {"motd": config.motd}
+		return {"motd": config.motd, "tags": config.tags}
 	@staticmethod
 	def _systemConfigFromDict(d):
 		if len(d) == 0: return None
 		config = SystemConfig()
 		config.motd = d["motd"]
+		config.tags = d["tags"]
 		return config
 	@staticmethod
 	def _userToDict(user):

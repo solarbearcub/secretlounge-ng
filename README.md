@@ -36,13 +36,14 @@ s - Alias of sign
 tsign - Sign a message with your tripcode
 t - Alias of tsign
 motd - Show the welcome message
+tags - List supported tags
 version - Get version & source code of this bot
 modhelp - Show commands available to moderators
 adminhelp - Show commands available to admins
 toggledebug - Toggle debug mode (sends back all messages to you)
 togglekarma - Toggle karma notifications
 togglerequests - Toggle DM request notifications
-togglefilter - Toggle filtering for a given tag.
+togglefilter - Toggle filtering for a given tag
 tripcode - Show or set the tripcode for your messages
 x - Spoiler a message (blurs media, only available for captionable attachments)
 ```

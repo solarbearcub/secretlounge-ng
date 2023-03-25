@@ -68,7 +68,7 @@ def init(config, _db, _ch):
 		"start", "stop", "users", "info", "motd", "toggledebug", "togglekarma", 
 		"togglerequests", "togglefilter", "version", "source", "modhelp", "adminhelp", "modsay", 
 		"adminsay", "mod", "admin", "warn", "delete", "remove", "uncooldown", 
-		"blacklist", "s", "sign", "tripcode", "t", "tsign", "cleanup", "x"
+		"blacklist", "s", "sign", "tripcode", "t", "tsign", "cleanup", "x", "tags", "toggletag"
 	]
 	for c in cmds: # maps /<c> to the function cmd_<c>
 		c = c.lower()
@@ -570,8 +570,8 @@ class MyReceiver(core.Receiver):
 cmd_start = wrap_core(core.user_join)
 cmd_stop = wrap_core(core.user_leave)
 
-
 cmd_users = wrap_core(core.get_users)
+cmd_tags = wrap_core(core.get_tags)
 
 def cmd_info(ev):
 	c_user = UserContainer(ev.from_user)
@@ -591,6 +591,11 @@ def cmd_motd(ev, arg):
 		send_answer(ev, core.get_motd(c_user), reply_to=True)
 	else:
 		send_answer(ev, core.set_motd(c_user, arg), reply_to=True)
+
+@takesArgument(optional=False)
+def cmd_toggletag(ev, arg):
+	c_user = UserContainer(ev.from_user)
+	send_answer(ev, core.set_tag(c_user, arg), reply_to=True)
 
 cmd_toggledebug = wrap_core(core.toggle_debug)
 cmd_togglekarma = wrap_core(core.toggle_karma)
