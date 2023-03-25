@@ -122,7 +122,7 @@ format_strs = {
 	types.TRIPCODE_INFO: lambda tripcode, **_:
 		"<b>tripcode</b>: " + ("<code>{tripcode!x}</code>" if tripcode is not None else "unset"),
 	types.TRIPCODE_SET: em("Tripcode set. It will appear as: ") + "<b>{tripname!x}</b> <code>{tripcode!x}</code>",
-	types.TAG_LIST: lambda taglist_str, **_: em("Supported tags:\n") + taglist_str,
+	types.TAG_LIST: lambda taglist_str, **_: "<b>Supported tags</b>:\n" + taglist_str,
 	types.TAG_FILTERED_SUCCESS: lambda tag, enabled, **_:
 		"Filter on #{tag!x} has been " + (enabled and "enabled" or "disabled"),
 	types.TAG_ADDED_SUCCESS: lambda tag, enabled, **_:
@@ -152,7 +152,7 @@ format_strs = {
 	types.ERR_MEDIA_LIMIT: em("You can't send media or forward messages at this time, try again later."),
 	types.ERR_SPOIL_NONMEDIA: em("You can't spoiler a message unless it contains media: video, photo, animation."),
 	types.ERR_UNSUPPORTED_TAG: lambda tag, **_: em("The tag ") + "#{tag!x}" + em(" is not supported for filters.\n")+
-		"Use /tags for a list of filterable tags.",
+		em("Use /tags for a list of filterable tags."),
 
 	types.USER_INFO: lambda warnings, cooldown, **_:
 		"<b>id</b>: {id}, <b>username</b>: {username!x}, <b>rank</b>: {rank_i} ({rank})\n"+
