@@ -307,7 +307,7 @@ def set_motd(user, arg):
 @requireUser
 @requireRank(RANKS.admin)
 def set_tag(user, tag):
-	tag = tag.replace("#", "").lower().trim()
+	tag = tag.replace("#", "").lower().strip()
 	new = False
 	with db.modifySystemConfig() as config:
 		tags = db.getSystemConfig().getTags()

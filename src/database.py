@@ -19,7 +19,7 @@ class SystemConfig():
 		self.tags = ""
 	def getTags(self):
 		tags = self.tags.split(":")
-		return [x.lower().trim() for x in tags if x]
+		return [x.lower().strip() for x in tags if x]
 
 USER_PROPS = (
 	"id", "username", "realname", "rank", "joined", "left", "lastActive",
