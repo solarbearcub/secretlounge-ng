@@ -797,8 +797,11 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False, spoiler=
 	for user2 in db.iterateUsers():
 		if not user2.isJoined():
 			continue
-		if user2 == user and not user.debugEnabled:
-			ch.saveMapping(user2.id, msid, ev.message_id)
+		if user2 == user:
+			if ev.spoiler:
+				send_answer(ev, rp.Reply(rp.types.MESSAGE_SPOILERED), True)
+			if not user.debugEnabled:
+				ch.saveMapping(user2.id, msid, ev.message_id)
 			continue
 		filters = user2.getTags()
 		filtered = False

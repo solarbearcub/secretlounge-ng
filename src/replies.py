@@ -48,6 +48,7 @@ types = NumericEnum([
 	"TAG_FILTERED_SUCCESS",
 	"TAG_ADDED_SUCCESS",
 	"TAG_LIST",
+	"MESSAGE_SPOILERED",
 
 	"ERR_COMMAND_DISABLED",
 	"ERR_NO_REPLY",
@@ -127,6 +128,7 @@ format_strs = {
 		"Filter on #{tag!x} has been " + (enabled and "enabled" or "disabled"),
 	types.TAG_ADDED_SUCCESS: lambda tag, enabled, **_:
 		"Tag #{tag!x} has been " + (enabled and "added" or "removed") + " to the supported list.",
+	types.MESSAGE_SPOILERED: em("Thank you for your consideration. Your last message was spoilered."),
 
 	types.ERR_COMMAND_DISABLED: em("This command has been disabled."),
 	types.ERR_NO_REPLY: em("You need to reply to a message to use this command."),
