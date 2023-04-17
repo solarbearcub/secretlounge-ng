@@ -802,7 +802,7 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False, spoiler=
 				send_answer(ev, rp.Reply(rp.types.MESSAGE_SPOILERED), True)
 			if not user.debugEnabled:
 				ch.saveMapping(user2.id, msid, ev.message_id)
-			continue
+				continue
 		filters = user2.getTags()
 		filtered = False
 		for tag in tags:
