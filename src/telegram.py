@@ -798,7 +798,7 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False, spoiler=
 		if not user2.isJoined():
 			continue
 		if user2 == user:
-			if hasattr(ev, "spoiler"):
+			if hasattr(ev, "spoiler") and ev.spoiler:
 				send_answer(ev, rp.Reply(rp.types.MESSAGE_SPOILERED), True)
 			if not user.debugEnabled:
 				ch.saveMapping(user2.id, msid, ev.message_id)
