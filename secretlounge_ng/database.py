@@ -43,6 +43,7 @@ class User():
 	warnExpiry: Optional[datetime]
 	karma: int
 	hideKarma: bool
+	hideRequests: bool
 	debugEnabled: bool
 	tripcode: Optional[str]
 	filterTags: Optional[str]
@@ -354,6 +355,8 @@ CREATE TABLE IF NOT EXISTS `users` (
 				self.db.execute("ALTER TABLE `users` ADD `tripcode` TEXT")
 			if not row_exists("users", "filterTags"):
 				self.db.execute("ALTER TABLE `users` ADD `filterTags` TEXT")
+			if not row_exists("users", "hideRequests"):
+				self.db.execute("ALTER TABLE `users` ADD `hideRequests` TINYINT NOT NULL")
 	def getUser(self, *, id=None):
 		if id is None:
 			raise ValueError()

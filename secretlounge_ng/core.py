@@ -549,7 +549,7 @@ def request_dm(user, msid):
 		return rp.Reply(rp.types.ERR_DM_REQUEST_OWN_MESSAGE)
 	user2 = db.getUser(id=cm.user_id)
 	if not user2.hideRequests:
-		_push_system_message(rp.Reply(rp.types.DM_REQUEST_NOTIFICATION, username=user.getFormattedName()), who=user2, reply_to=msid)
+		_push_system_message(rp.Reply(rp.types.DM_REQUEST_NOTIFICATION, id=user.id, username=user.getFormattedName()), who=user2, reply_to=msid)
 	return rp.Reply(rp.types.DM_REQUEST_ACKNOWLEDGEMENT)
 
 @requireUser
