@@ -1,12 +1,12 @@
 import re
 from string import Formatter
 
-from src.globals import *
+from .globals import *
 
 class NumericEnum(Enum):
 	def __init__(self, names):
 		d = {name: i for i, name in enumerate(names)}
-		super(NumericEnum, self).__init__(d)
+		super().__init__(d)
 
 class CustomFormatter(Formatter):
 	def convert_field(self, value, conversion):
@@ -16,13 +16,13 @@ class CustomFormatter(Formatter):
 			return format_datetime(value)
 		elif conversion == "d": # time[d]elta
 			return format_timedelta(value)
-		return super(CustomFormatter, self).convert_field(value, conversion)
+		return super().convert_field(value, conversion)
 
 # definition of reply class and types
 
 class Reply():
-	def __init__(self, type, **kwargs):
-		self.type = type
+	def __init__(self, type_, **kwargs):
+		self.type = type_
 		self.kwargs = kwargs
 
 types = NumericEnum([
@@ -113,9 +113,9 @@ format_strs = {
 	types.DELETION_QUEUED: em("{count} messages matched, deletion was queued."),
 	types.PROMOTED_MOD: em("You've been promoted to moderator, run /modhelp for a list of commands."),
 	types.PROMOTED_ADMIN: em("You've been promoted to admin, run /adminhelp for a list of commands."),
-	types.KARMA_THANK_YOU: em("You just gave this user some sweet karma, awesome!"),
+	types.KARMA_THANK_YOU: em("You gave that user some sugar, awesome!"),
 	types.KARMA_NOTIFICATION:
-		em( "You've just been given sweet karma! (check /info to see your karma"+
+		em( "You've just been fed! (check /info to see your calories"+
 			" or /toggleKarma to turn these notifications off)" ),
 	types.DM_REQUEST_NOTIFICATION: lambda username, **_: em( "{username!x} has requested contact in response to this message." + 
 			"\nRun /toggleRequests to turn these notifications off." ),
@@ -158,8 +158,8 @@ format_strs = {
 
 	types.USER_INFO: lambda warnings, cooldown, **_:
 		"<b>id</b>: {id}, <b>username</b>: {username!x}, <b>rank</b>: {rank_i} ({rank})\n"+
-		"<b>karma</b>: {karma}\n"+
 		"<b>Filtered tags</b>: {filterTags!x}\n" +
+		"<b>calories</b>: {karma}\n"+
 		"<b>warnings</b>: {warnings} " + smiley(warnings)+
 		( " (one warning will be removed on {warnExpiry!t})" if warnings > 0 else "" ) + ", "+
 		"<b>cooldown</b>: "+
@@ -174,7 +174,7 @@ format_strs = {
 		"<b>{active}</b> <i>active</i>, {inactive} <i>inactive and</i> "+
 		"{blacklisted} <i>blacklisted users</i> (<i>total</i>: {total})",
 
-	types.PROGRAM_VERSION: "secretlounge-ng v{version} ~ https://github.com/sfan5/secretlounge-ng",
+	types.PROGRAM_VERSION: "secretlounge-ng v{version} ~ https://github.com/secretlounge/secretlounge-ng",
 	types.HELP_MODERATOR:
 		"<i>Moderators can use the following commands</i>:\n"+
 		"  /modhelp - show this text\n"+

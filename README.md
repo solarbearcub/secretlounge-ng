@@ -7,14 +7,19 @@ The bot accepts messages, pictures, videos, etc. from any user and relays it to 
 
 ## Setup
 
+You will need a Linux server or computer with Python 3 installed and access to the command line.
+
 ```bash
-pip3 install -r requirements.txt
+pip install -e .
 cp config.yaml.example config.yaml
-# Edit config.yaml with your favorite text editor.
+# Edit config.yaml with your favorite text editor
 ./secretlounge-ng
 ```
 
 To run the bot in the background use a systemd service (preferred) or screen/tmux.
+
+Note that you can also install it as a normal Python module and run it from anywhere
+like `python -m secretlounge_ng`, which I won't explain here.
 
 ## @BotFather Setup
 
@@ -31,16 +36,19 @@ start - Join the chat (start receiving messages)
 stop - Leave the chat (stop receiving messages)
 users - Find out how many users are in the chat
 info - Get info about your account
+dm - Sends your telegram information to the author of a message.
 sign - Sign a message with your username
 s - Alias of sign
 tsign - Sign a message with your tripcode
 t - Alias of tsign
+tags - List tags supported for filtering
 motd - Show the welcome message
 tags - List supported tags
 version - Get version & source code of this bot
 modhelp - Show commands available to moderators
 adminhelp - Show commands available to admins
 toggledebug - Toggle debug mode (sends back all messages to you)
+togglefilter - Toggles filtering for a given tag.
 togglekarma - Toggle karma notifications
 togglerequests - Toggle DM request notifications
 togglefilter - Toggle filtering for a given tag
