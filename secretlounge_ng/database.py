@@ -5,8 +5,9 @@ import sqlite3
 from datetime import date, datetime, timedelta, timezone
 from random import randint
 from threading import RLock
+from typing import Optional, Generator
 
-from src.globals import *
+from .globals import *
 
 # what's inside the db
 
@@ -19,28 +20,30 @@ class SystemConfig():
 USER_PROPS = (
 	"id", "username", "realname", "rank", "joined", "left", "lastActive",
 	"cooldownUntil", "blacklistReason", "warnings", "warnExpiry", "karma",
-	"hideKarma", "hideRequests", "debugEnabled", "tripcode"
+	"hideKarma", "hideRequests", "debugEnabled", "tripcode", "filterTags"
 )
 
 class User():
 	__slots__ = USER_PROPS
+	id: int
+	username: Optional[str]
+	realname: str
+	rank: int
+	joined: datetime
+	left: Optional[datetime]
+	lastActive: datetime
+	cooldownUntil: Optional[datetime]
+	blacklistReason: Optional[str]
+	warnings: int
+	warnExpiry: Optional[datetime]
+	karma: int
+	hideKarma: bool
+	debugEnabled: bool
+	tripcode: Optional[str]
+	filterTags: Optional[str]
 	def __init__(self):
-		self.id = None # int
-		self.username = None # str?
-		self.realname = None # str
-		self.rank = None # int
-		self.joined = None # datetime
-		self.left = None # datetime?
-		self.lastActive = None # datetime
-		self.cooldownUntil = None # datetime?
-		self.blacklistReason = None # str?
-		self.warnings = None # int
-		self.warnExpiry = None # datetime?
-		self.karma = None # int
-		self.hideKarma = None # bool
-		self.hideRequests = None # bool
-		self.debugEnabled = None # bool
-		self.tripcode = None # str?
+		for k in USER_PROPS:
+			setattr(self, k, None)
 	def __eq__(self, other):
 		if isinstance(other, User):
 			return self.id == other.id
@@ -56,6 +59,7 @@ class User():
 		self.hideKarma = False
 		self.hideRequests = False
 		self.debugEnabled = False
+		self.filterTags = ""
 	def isJoined(self):
 		return self.left is None
 	def isInCooldown(self):
@@ -68,6 +72,9 @@ class User():
 		value = (self.id * salt) & 0xffffff
 		alpha = "0123456789abcdefghijklmnopqrstuv"
 		return ''.join(alpha[n%32] for n in (value, value>>5, value>>10, value>>15))
+        def getTags(self):
+		tags = self.filterTags.split(":")
+		return [x for x in tags if x] #Don't include empty strings off the edge of the tag list
 	def getObfuscatedKarma(self):
 		if self.karma > 50 or self.karma < -50:
 			return max(-50, min(self.karma, 50))
@@ -134,25 +141,26 @@ class Database():
 		raise NotImplementedError()
 	def close(self):
 		raise NotImplementedError()
-	def getUser(self, id=None):
+	def getUser(self, *, id: Optional[int]=None) -> User:
 		raise NotImplementedError()
-	def setUser(self, id, user):
+	def setUser(self, id: int, user: User):
 		raise NotImplementedError()
-	def addUser(self, user):
+	def addUser(self, user: User):
 		raise NotImplementedError()
-	def iterateUserIds(self):
+	def iterateUserIds(self) -> Generator[int, None, None]:
 		raise NotImplementedError()
-	def getSystemConfig(self):
+	def getSystemConfig(self) -> Optional[SystemConfig]:
 		raise NotImplementedError()
-	def setSystemConfig(self, config):
+	def setSystemConfig(self, config: SystemConfig):
 		raise NotImplementedError()
-	def iterateUsers(self):
+	def iterateUsers(self) -> Generator[User, None, None]:
+		# fallback impl
 		with self.lock:
 			l = list(self.getUser(id=id) for id in self.iterateUserIds())
 		yield from l
-	def modifyUser(self, **kwargs):
+	def modifyUser(self, *, id: Optional[int]=None):
 		with self.lock:
-			user = self.getUser(**kwargs)
+			user = self.getUser(id=id)
 			callback = lambda newuser: self.setUser(user.id, newuser)
 			return ModificationContext(user, callback, self.lock)
 	def modifySystemConfig(self):
@@ -165,7 +173,7 @@ class Database():
 
 class JSONDatabase(Database):
 	def __init__(self, path):
-		super(JSONDatabase, self).__init__()
+		super().__init__()
 		self.path = path
 		self.db = {"systemConfig": None, "users": []}
 		try:
@@ -190,7 +198,8 @@ class JSONDatabase(Database):
 	def _userToDict(user):
 		props = ["id", "username", "realname", "rank", "joined", "left",
 			"lastActive", "cooldownUntil", "blacklistReason", "warnings",
-			"warnExpiry", "karma", "hideKarma", "hideRequests", "debugEnabled", "tripcode"]
+			"warnExpiry", "karma", "hideKarma", "hideRequests", "debugEnabled",
+			"filterTags", "tripcode"]
 		d = {}
 		for prop in props:
 			value = getattr(user, prop)
@@ -202,7 +211,8 @@ class JSONDatabase(Database):
 	def _userFromDict(d):
 		if d is None: return None
 		props = ["id", "username", "realname", "rank", "blacklistReason",
-			"warnings", "karma", "hideKarma", "hideRequests", "debugEnabled"]
+			"warnings", "karma", "hideKarma", "hideRequests", "debugEnabled"
+			"filterTags"]
 		props_d = [("tripcode", None)]
 		dateprops = ["joined", "left", "lastActive", "cooldownUntil", "warnExpiry"]
 		user = User()
@@ -223,7 +233,7 @@ class JSONDatabase(Database):
 			with open(self.path + "~", "w") as f:
 				json.dump(self.db, f)
 			os.replace(self.path + "~", self.path)
-	def getUser(self, id=None):
+	def getUser(self, *, id=None):
 		if id is None:
 			raise ValueError()
 		with self.lock:
@@ -261,7 +271,7 @@ class JSONDatabase(Database):
 
 class SQLiteDatabase(Database):
 	def __init__(self, path):
-		super(SQLiteDatabase, self).__init__()
+		super().__init__()
 		self.db = sqlite3.connect(path, check_same_thread=False,
 			detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
 		self.db.row_factory = sqlite3.Row
@@ -325,13 +335,16 @@ CREATE TABLE IF NOT EXISTS `users` (
 	`hideRequests` TINYINT NOT NULL,
 	`debugEnabled` TINYINT NOT NULL,
 	`tripcode` TEXT,
+        `filterTags` TEXT,
 	PRIMARY KEY (`id`)
 );
 			""".strip())
 			# migration
 			if not row_exists("users", "tripcode"):
 				self.db.execute("ALTER TABLE `users` ADD `tripcode` TEXT")
-	def getUser(self, id=None):
+                        if not row_exists("users", "filterTags"):
+                                self.db.execute("ALTER TABLE `users` ADD `filterTags` TEXT")
+	def getUser(self, *, id=None):
 		if id is None:
 			raise ValueError()
 		sql = "SELECT * FROM users WHERE id = ?"
