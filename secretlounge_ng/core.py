@@ -335,13 +335,6 @@ def toggle_karma(user):
 	return rp.Reply(rp.types.BOOLEAN_CONFIG, description="Karma notifications", enabled=not new)
 
 @requireUser
-def toggle_requests(user):
-	with db.modifyUser(id=user.id) as user:
-		user.hideRequests = not user.hideRequests
-		new = user.hideRequests
-	return rp.Reply(rp.types.BOOLEAN_CONFIG, description="DM request notifications", enabled=not new)
-
-@requireUser
 def toggle_filter(user, tag_name=None):
 	new = False
 	supported_tags = db.getSystemConfig().tags.split(":")

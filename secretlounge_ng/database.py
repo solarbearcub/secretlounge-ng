@@ -81,7 +81,7 @@ class User():
 		value = (self.id * salt) & 0xffffff
 		alpha = "0123456789abcdefghijklmnopqrstuv"
 		return ''.join(alpha[n%32] for n in (value, value>>5, value>>10, value>>15))
-        def getTags(self):
+	def getTags(self):
 		tags = self.filterTags.split(":")
 		return [x for x in tags if x] #Don't include empty strings off the edge of the tag list
 	def getObfuscatedKarma(self):
@@ -346,7 +346,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 	`debugEnabled` TINYINT NOT NULL,
 	`filterTags` TEXT,
 	`tripcode` TEXT,
-        `filterTags` TEXT,
+	`filterTags` TEXT,
 	PRIMARY KEY (`id`)
 );
 			""".strip())

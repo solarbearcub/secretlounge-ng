@@ -68,10 +68,10 @@ def init(config, _db, _ch):
 
 	cmds = [
 		"start", "stop", "users", "info", "motd", "toggledebug", "togglekarma",
-		"togglerequests", "togglefilter", "version", "source", "modhelp", "adminhelp", "modsay",
-		"adminsay", "mod", "admin", "warn", "delete", "remove", "uncooldown",
-		"blacklist", "s", "sign", "dm", "tripcode", "t", "tsign", "cleanup", "x", "tags", "toggletag"
-		"blacklist", "s", "sign", "dm", "tripcode", "t", "tsign", "cleanup"
+		"togglerequests", "togglefilter", "version", "source", "modhelp", "adminhelp",
+		"modsay", "adminsay", "mod", "admin", "warn", "delete", "remove", "uncooldown",
+		"blacklist", "s", "sign", "dm", "tripcode", "t", "tsign", "cleanup", "x", "tags",
+		"toggletag"
 	]
 	for c in cmds: # maps /<c> to the function cmd_<c>
 		c = c.lower()
@@ -201,8 +201,8 @@ def calc_spam_score(ev):
 def extract_tags(text):
 	tag_list = []
 	for word in text.split():
-	if word[0] == '#':
-		tag_list.append(word[1:].lower())
+		if word[0] == '#':
+			tag_list.append(word[1:].lower())
 	return tag_list
 
 ###
