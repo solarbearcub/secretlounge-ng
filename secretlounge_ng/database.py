@@ -14,13 +14,18 @@ from .globals import *
 class SystemConfig():
 	def __init__(self):
 		self.motd = None
+		self.tags = None
 	def defaults(self):
 		self.motd = ""
+		self.tags = ""
+	def getTags(self):
+		tags = self.tags.split(":")
+		return [x.lower().strip() for x in tags if x]
 
 USER_PROPS = (
 	"id", "username", "realname", "rank", "joined", "left", "lastActive",
 	"cooldownUntil", "blacklistReason", "warnings", "warnExpiry", "karma",
-	"hideKarma", "hideRequests", "debugEnabled", "tripcode", "filterTags"
+	"hideKarma", "hideRequests", "filterTags", "debugEnabled", "tripcode"]
 )
 
 class User():
@@ -287,12 +292,13 @@ class SQLiteDatabase(Database):
 			self.db.close()
 	@staticmethod
 	def _systemConfigToDict(config):
-		return {"motd": config.motd}
+		return {"motd": config.motd, "tags": config.tags}
 	@staticmethod
 	def _systemConfigFromDict(d):
 		if len(d) == 0: return None
 		config = SystemConfig()
 		config.motd = d["motd"]
+		config.tags = d["tags"]
 		return config
 	@staticmethod
 	def _userToDict(user):
@@ -342,8 +348,8 @@ CREATE TABLE IF NOT EXISTS `users` (
 			# migration
 			if not row_exists("users", "tripcode"):
 				self.db.execute("ALTER TABLE `users` ADD `tripcode` TEXT")
-                        if not row_exists("users", "filterTags"):
-                                self.db.execute("ALTER TABLE `users` ADD `filterTags` TEXT")
+			if not row_exists("users", "filterTags"):
+				self.db.execute("ALTER TABLE `users` ADD `filterTags` TEXT")
 	def getUser(self, *, id=None):
 		if id is None:
 			raise ValueError()

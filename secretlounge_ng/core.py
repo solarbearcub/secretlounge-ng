@@ -249,6 +249,7 @@ def get_info(user):
 		"warnings": user.warnings,
 		"warnExpiry": user.warnExpiry,
 		"cooldown": user.cooldownUntil if user.isInCooldown() else None,
+		"filterTags": ", ".join(user.getTags()),
 	}
 	return rp.Reply(rp.types.USER_INFO, **params)
 
@@ -292,12 +293,32 @@ def get_motd(user):
 	return rp.Reply(rp.types.CUSTOM, text=motd)
 
 @requireUser
+def get_tags(user):
+	tags = ["#"+x for x in db.getSystemConfig().getTags()]
+	return rp.Reply(rp.types.TAG_LIST, taglist_str=", ".join(tags))
+
+@requireUser
 @requireRank(RANKS.admin)
 def set_motd(user, arg):
 	with db.modifySystemConfig() as config:
 		config.motd = arg
 	logging.info("%s set motd to: %r", user, arg)
 	return rp.Reply(rp.types.SUCCESS)
+
+@requireUser
+@requireRank(RANKS.admin)
+def set_tag(user, tag):
+	tag = tag.replace("#", "").lower().strip()
+	new = False
+	with db.modifySystemConfig() as config:
+		tags = db.getSystemConfig().getTags()
+		if tag in tags:
+			tags.remove(tag)
+		else:
+			tags.append(tag)
+			new = True
+		config.tags = ":".join(tags)
+	return rp.Reply(rp.types.TAG_ADDED_SUCCESS, tag=tag, enabled=new)
 
 @requireUser
 def toggle_debug(user):
@@ -312,6 +333,30 @@ def toggle_karma(user):
 		user.hideKarma = not user.hideKarma
 		new = user.hideKarma
 	return rp.Reply(rp.types.BOOLEAN_CONFIG, description="Karma notifications", enabled=not new)
+
+@requireUser
+def toggle_requests(user):
+	with db.modifyUser(id=user.id) as user:
+		user.hideRequests = not user.hideRequests
+		new = user.hideRequests
+	return rp.Reply(rp.types.BOOLEAN_CONFIG, description="DM request notifications", enabled=not new)
+
+@requireUser
+def toggle_filter(user, tag_name=None):
+	new = False
+	supported_tags = db.getSystemConfig().tags.split(":")
+	with db.modifyUser(id=user.id) as user:
+		tags = user.getTags()
+		if tag_name not in supported_tags:
+			return rp.Reply(rp.types.ERR_UNSUPPORTED_TAG, tag=tag_name)
+		if tag_name in tags:
+			tags.remove(tag_name)
+			user.filterTags = ":".join(tags)
+		else:
+			tags.append(tag_name)
+			user.filterTags = ":".join(tags)
+			new = True
+	return rp.Reply(rp.types.TAG_FILTERED_SUCCESS, tag=tag_name, enabled=new)
 
 @requireUser
 def toggle_requests(user):

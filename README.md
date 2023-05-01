@@ -36,15 +36,18 @@ start - Join the chat (start receiving messages)
 stop - Leave the chat (stop receiving messages)
 users - Find out how many users are in the chat
 info - Get info about your account
+dm - Sends your telegram information to the author of a message.
 sign - Sign a message with your username
 s - Alias of sign
 tsign - Sign a message with your tripcode
 t - Alias of tsign
+tags - List tags supported for filtering
 motd - Show the welcome message
 version - Get version & source code of this bot
 modhelp - Show commands available to moderators
 adminhelp - Show commands available to admins
 toggledebug - Toggle debug mode (sends back all messages to you)
+togglefilter - Toggles filtering for a given tag.
 togglekarma - Toggle karma notifications
 togglerequests - Toggle DM request notifications
 tripcode - Show or set the tripcode for your messages
