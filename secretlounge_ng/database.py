@@ -81,9 +81,6 @@ class User():
 		value = (self.id * salt) & 0xffffff
 		alpha = "0123456789abcdefghijklmnopqrstuv"
 		return ''.join(alpha[n%32] for n in (value, value>>5, value>>10, value>>15))
-	def getTags(self):
-		tags = self.filterTags.split(":")
-		return [x for x in tags if x] #Don't include empty strings off the edge of the tag list
 	def getObfuscatedKarma(self):
 		if self.karma > 50 or self.karma < -50:
 			return max(-50, min(self.karma, 50))
