@@ -796,9 +796,9 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False, spoiler=
 		if user2.rank >= RANKS.mod:
 			ev_modview = copy.deepcopy(ev_tosend)
 			if ev.content_type == "text":
-				ev.text = "<em>" + user2.id + "</em>\n" + ev.text
+				ev.text = "<em>{}</em>\n".format(user2.id) + ev.text
 			elif ev.content_type in CAPTIONABLE_TYPES:
-				ev.caption = "<em>" + user2.id + "</em>\n" + ev.caption
+				ev.caption = "<em>{}</em>\n".format(user2.id) + ev.caption
 			send_to_single(ev_modview, msid, user2,
 			reply_msid=reply_msid, force_caption=force_caption)
 			continue
