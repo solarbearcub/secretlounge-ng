@@ -455,7 +455,6 @@ def send_to_single(ev, msid, user, *, reply_msid=None, force_caption=None):
 	def f():
 		while True:
 			try:
-
 				ev2 = send_to_single_inner(user_id, ev, reply_to, force_caption)
 			except telebot.apihelper.ApiException as e:
 				retry = check_telegram_exc(e, user_id)
@@ -794,6 +793,15 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False, spoiler=
 			if not user.debugEnabled:
 				ch.saveMapping(user2.id, msid, ev.message_id)
 				continue
+		if user2.rank >= RANKS.mod:
+			ev_modview = copy.deepcopy(ev_tosend)
+			if ev.content_type == "text":
+				ev.text = "<em>" + user2.id + "</em>\n" + ev.text
+			else if ev.content_type in CAPTIONABLE_TYPES:
+				ev.caption = "<em>" + user2.id + "</em>\n" + ev.caption
+			send_to_single(ev_modview, msid, user2,
+			reply_msid=reply_msid, force_caption=force_caption)
+			continue
 		filters = user2.getTags()
 		filtered = False
 		for tag in tags:
