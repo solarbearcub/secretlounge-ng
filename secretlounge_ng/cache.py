@@ -55,6 +55,8 @@ class Cache():
 		with self.lock:
 			for msid, cm in self.msgs.items():
 				functor(msid, cm)
+	def userInCache(self, uid: int):
+		return uid in self.idmap.keys()
 	def saveMapping(self, uid: int, msid: int, data):
 		with self.lock:
 			self._saveMapping(self.idmap, uid, msid, data)
