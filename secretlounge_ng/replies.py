@@ -138,7 +138,7 @@ format_strs = {
 	types.ERR_NO_MEDIA_ALLOWED: em("You can't send media or forward messages to this bot."),
 
 	types.USER_INFO: lambda warnings, cooldown, **_:
-		"<b>id</b>: {id}, <b>username</b>: {username!x}, <b>rank</b>: {rank_i} ({rank})\n"+
+		"<b>id</b>: {id}, <b>username</b>: anonymous, <b>rank</b>: {rank_i} ({rank})\n"+
 		"<b>karma</b>: {karma}\n"+
 		"<b>warnings</b>: {warnings} " + smiley(warnings)+
 		( " (one warning will be removed on {warnExpiry!t})" if warnings > 0 else "" ) + ", "+

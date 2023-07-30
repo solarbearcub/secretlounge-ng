@@ -67,8 +67,10 @@ class User():
 		salt = date.today().toordinal()*24 + int(datetime.now().hour/id_refresh_interval)
 		if salt & 0xff == 0: salt >>= 8 # zero bits are bad for hashing
 		value = (self.id * salt) & 0xffffff
-		alpha = "0123456789abcdefghijklmnopqrstuv"
-		return ''.join(alpha[n%32] for n in (value, value>>5, value>>10, value>>15))
+		alpha = "0123456789ABCDEFGHIJKLMNOPQRSTUV"
+		# Use recognizable symbols to cap off IDs
+		cap = ["🟥","🟦","🟧","🟨","🟪","⬛","⬜","🔴","🟠","🟡","🔵","🟣","⚫","⚪","🔶","🔷"] 
+		return ''.join(alpha[n%32] for n in (value>>5, value>>10, value>>15)) + cap[value%16]
 	def getObfuscatedKarma(self):
 		if abs(self.karma) >= 50:
 			return max(-50, min(self.karma, 50))

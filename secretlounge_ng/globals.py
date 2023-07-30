@@ -25,12 +25,6 @@ def format_timedelta(d):
 			return "%d%c" % (d // cmp, char)
 	return "%ds" % d.total_seconds()
 
-def is_same_session(lastActive: datetime, interval: int):
-	t = datetime.now()
-	session_time = t.toordinal()*24 + int(t.hour/interval)
-	last_session = lastActive.toordinal()*24 + int(lastActive.hour/interval)
-	return session_time == last_session
-
 ## for debugging ##
 def dump(obj, name=None, r=False):
 	name = "" if name is None else (name + ".")

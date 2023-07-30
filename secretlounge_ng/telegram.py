@@ -730,7 +730,7 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False):
 	user = db.getUser(id=ev.from_user.id)
 
 	# let them know their ID if they've not sent any messages during the current session
-	if id_visible and not is_same_session(user.lastActive, id_refresh_interval):
+	if id_visible and not ch.lookupMapping(user.id):
 		send_answer(ev, rp.Reply(rp.types.USER_NEW_ID, id=user.getObfuscatedId(id_refresh_interval)))
 
 	# for signed msgs: check user's forward privacy status first
