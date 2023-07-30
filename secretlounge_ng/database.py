@@ -63,8 +63,8 @@ class User():
 		return self.cooldownUntil is not None and self.cooldownUntil >= datetime.now()
 	def isBlacklisted(self):
 		return self.rank < 0
-	def getObfuscatedId(self):
-		salt = date.today().toordinal()
+	def getObfuscatedId(self, id_refresh_interval):
+		salt = date.today().toordinal()*24 + int(datetime.now().hour/id_refresh_interval)
 		if salt & 0xff == 0: salt >>= 8 # zero bits are bad for hashing
 		value = (self.id * salt) & 0xffffff
 		alpha = "0123456789abcdefghijklmnopqrstuv"

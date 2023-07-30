@@ -7,6 +7,8 @@ database: [sqlite, "secretlounge.sqlite"]
 
 # relay contacts
 allow_contacts: false
+# relay media (animations, audio, photo, sticker, video, video notes, voice clips)
+allow_media: false
 # relay arbitrary documents/files (GIFs always work)
 allow_documents: true
 
@@ -18,6 +20,14 @@ enable_signing: false
 # limit usage of /sign to once in every interval (seconds)
 # defaults to 600 if not specified, set to 0 to disable
 #sign_limit_interval: 600
+
+# refresh IDs once every interval (hours)
+# defaults to 24 if not specified
+#id_refresh_interval: 12
+
+# make obfuscated user IDs visible in sent messages
+# defaults to false if not specified
+#id_visible: true
 
 # point of contact shown to blacklisted users (optional)
 #blacklist_contact: http://t.me/invite/something

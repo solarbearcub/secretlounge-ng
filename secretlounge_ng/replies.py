@@ -61,9 +61,11 @@ types = NumericEnum([
 	"ERR_INVALID_TRIP_FORMAT",
 	"ERR_NO_TRIPCODE",
 	"ERR_MEDIA_LIMIT",
+	"ERR_NO_MEDIA_ALLOWED",
 
 	"USER_INFO",
 	"USER_INFO_MOD",
+	"USER_NEW_ID",
 	"USERS_INFO",
 	"USERS_INFO_EXTENDED",
 
@@ -114,9 +116,9 @@ format_strs = {
 
 	types.ERR_COMMAND_DISABLED: em("This command has been disabled."),
 	types.ERR_NO_REPLY: em("You need to reply to a message to use this command."),
-	types.ERR_NOT_IN_CACHE: em("Message not found in cache... (24h passed or bot was restarted)"),
+	types.ERR_NOT_IN_CACHE: em("Message not found in cache... ({id_refresh_interval}h passed or bot was restarted)"),
 	types.ERR_NO_USER: em("No user found by that name!"),
-	types.ERR_NO_USER_BY_ID: em("No user found by that id! Note that all ids rotate every 24 hours."),
+	types.ERR_NO_USER_BY_ID: em("No user found by that id! Note that all ids rotate every {id_refresh_interval} hours."),
 	types.ERR_COOLDOWN: em("Your cooldown expires at {until!t}"),
 	types.ERR_ALREADY_WARNED: em("A warning has already been issued for this message."),
 	types.ERR_NOT_IN_COOLDOWN: em("This user is not in a cooldown right now."),
@@ -133,6 +135,7 @@ format_strs = {
 		"<code>name#pass</code>" + em("."),
 	types.ERR_NO_TRIPCODE: em("You don't have a tripcode set."),
 	types.ERR_MEDIA_LIMIT: em("You can't send media or forward messages at this time, try again later."),
+	types.ERR_NO_MEDIA_ALLOWED: em("You can't send media or forward messages to this bot."),
 
 	types.USER_INFO: lambda warnings, cooldown, **_:
 		"<b>id</b>: {id}, <b>username</b>: {username!x}, <b>rank</b>: {rank_i} ({rank})\n"+
@@ -146,6 +149,8 @@ format_strs = {
 		"<b>karma bracket</b>: {karma}\n"+
 		"<b>cooldown</b>: "+
 		( cooldown and "yes, until {cooldown!t}" or "no" ),
+	types.USER_NEW_ID: lambda id, **_:
+		em("You have been assigned a new ID: ") + "<b>{id}</b>",
 	types.USERS_INFO: "<b>{count}</b> <i>users</i>",
 	types.USERS_INFO_EXTENDED:
 		"<b>{active}</b> <i>active</i>, {inactive} <i>inactive and</i> "+

@@ -35,10 +35,13 @@ registered_commands = {}
 
 # settings
 allow_documents: bool = None
+allow_media: bool = None
 linked_network: dict = None
+id_refresh_interval: bool = None
+id_visible
 
 def init(config, _db, _ch):
-	global bot, db, ch, message_queue, allow_documents, linked_network
+	global bot, db, ch, message_queue, allow_documents, allow_media, linked_network, id_refresh_interval, id_visible
 	if config["bot_token"] == "":
 		logging.error("No telegram token specified.")
 		exit(1)
@@ -53,7 +56,10 @@ def init(config, _db, _ch):
 
 	allow_contacts = config["allow_contacts"]
 	allow_documents = config["allow_documents"]
+	allow_media = config["allow_media"]
 	linked_network = config.get("linked_network")
+	id_refresh_interval = config.get("id_refresh_interval")
+	id_visible = config.get("id_visible")
 	if linked_network is not None and not isinstance(linked_network, dict):
 		logging.error("Wrong type for 'linked_network'")
 		exit(1)
@@ -286,6 +292,12 @@ def formatter_signed_message(user: core.User, fmt: FormattedMessageBuilder):
 	fmt.append(" <a href=\"tg://user?id=%d\">" % user.id, True)
 	fmt.append("~~" + user.getFormattedName())
 	fmt.append("</a>", True)
+
+# Include obfuscated ID for [ID: xxxx] syntax
+def formatter_identified_message(user: core.User, fmt: FormattedMessageBuilder):
+	fmt.prepend("</code>]\n", True)
+	fmt.prepend(user.getObfuscatedId(id_refresh_interval))
+	fmt.prepend("[<b>ID:</b> <code>", True)
 
 # Add tripcode message formatting for User `user` to `fmt`
 def formatter_tripcoded_message(user: core.User, fmt: FormattedMessageBuilder):
@@ -708,12 +720,18 @@ def relay(ev):
 # `signed` and `tripcode` indicate if the message is signed or tripcoded respectively
 def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False):
 	is_media = is_forward(ev) or ev.content_type in MEDIA_FILTER_TYPES
+	if not allow_media:
+		return send_answer(ev, rp.Reply(rp.types.ERR_NO_MEDIA_ALLOWED))
 	msid = core.prepare_user_message(UserContainer(ev.from_user), calc_spam_score(ev),
 		is_media=is_media, signed=signed, tripcode=tripcode)
 	if msid is None or isinstance(msid, rp.Reply):
 		return send_answer(ev, msid) # don't relay message, instead reply
 
 	user = db.getUser(id=ev.from_user.id)
+
+	# let them know their ID if they've not sent any messages during the current session
+	if id_visible and is_same_session(user.lastActive, id_refresh_interval):
+		send_answer(ev, rp.Reply(rp.types.USER_NEW_ID, id=user.getObfuscatedId(id_refresh_interval)))
 
 	# for signed msgs: check user's forward privacy status first
 	# FIXME? this is a possible bottleneck
@@ -731,6 +749,8 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False):
 		fmt = FormattedMessageBuilder(caption_text, ev.caption, ev.text)
 		formatter_replace_links(ev, fmt)
 		formatter_network_links(fmt)
+		if id_visible:
+			formatter_identified_message(user, fmt)
 		if signed:
 			formatter_signed_message(user, fmt)
 		elif tripcode:

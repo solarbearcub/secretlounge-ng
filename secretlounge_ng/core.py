@@ -19,9 +19,11 @@ enable_signing = None
 allow_remove_command = None
 media_limit_period = None
 sign_interval = None
+id_refresh_interval = None
+id_visible = None
 
 def init(config, _db, _ch):
-	global db, ch, spam_scores, blacklist_contact, enable_signing, allow_remove_command, media_limit_period, sign_interval
+	global db, ch, spam_scores, blacklist_contact, enable_signing, allow_remove_command, media_limit_period, sign_interval, id_refresh_interval, id_visible
 	db = _db
 	ch = _ch
 	spam_scores = ScoreKeeper()
@@ -32,6 +34,8 @@ def init(config, _db, _ch):
 	if "media_limit_period" in config.keys():
 		media_limit_period = timedelta(hours=int(config["media_limit_period"]))
 	sign_interval = timedelta(seconds=int(config.get("sign_limit_interval", 600)))
+	id_refresh_interval = int(24/timedelta(hours=int(config.get("id_refresh_interval", 24))))
+	id_visible = config.get("id_visible", False)
 
 	if config.get("locale"):
 		rp.localization = import_module("..replies_" + config["locale"], __name__).localization
@@ -75,7 +79,7 @@ def getUserByOid(oid):
 	for user in db.iterateUsers():
 		if not user.isJoined():
 			continue
-		if user.getObfuscatedId() == oid:
+		if user.getObfuscatedId(id_refresh_interval) == oid:
 			return user
 	return None
 
@@ -241,7 +245,7 @@ def user_leave(user):
 @requireUser
 def get_info(user):
 	params = {
-		"id": user.getObfuscatedId(),
+		"id": user.getObfuscatedId(id_refresh_interval),
 		"username": user.getFormattedName(),
 		"rank_i": user.rank,
 		"rank": RANKS.reverse[user.rank],
@@ -261,7 +265,7 @@ def get_info_mod(user, msid):
 
 	user2 = db.getUser(id=cm.user_id)
 	params = {
-		"id": user2.getObfuscatedId(),
+		"id": user2.getObfuscatedId(id_refresh_interval),
 		"karma": user2.getObfuscatedKarma(),
 		"cooldown": user2.cooldownUntil if user2.isInCooldown() else None,
 	}
@@ -390,7 +394,7 @@ def warn_user(user, msid, delete=False):
 			return rp.Reply(rp.types.ERR_ALREADY_WARNED)
 	if delete:
 		Sender.delete([msid])
-	logging.info("%s warned [%s]%s", user, user2.getObfuscatedId(), delete and " (message deleted)" or "")
+	logging.info("%s warned [%s]%s", user, user2.getObfuscatedId(id_refresh_interval), delete and " (message deleted)" or "")
 	return rp.Reply(rp.types.SUCCESS)
 
 @requireUser
@@ -406,7 +410,7 @@ def delete_message(user, msid):
 	user2 = db.getUser(id=cm.user_id)
 	_push_system_message(rp.Reply(rp.types.MESSAGE_DELETED), who=user2, reply_to=msid)
 	Sender.delete([msid])
-	logging.info("%s deleted a message from [%s]", user, user2.getObfuscatedId())
+	logging.info("%s deleted a message from [%s]", user, user2.getObfuscatedId(id_refresh_interval))
 	return rp.Reply(rp.types.SUCCESS)
 
 @requireUser
