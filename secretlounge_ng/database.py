@@ -68,7 +68,7 @@ class User():
 		day = date.today().toordinal()
 		interval = 1 + int(datetime.now().hour/id_refresh_interval)
 		digest = (day*interval*self.id).__str__()
-		h = hashlib.shake_256(digest.to_bytes(2, 'big'))
+		h = hashlib.shake_256(bytes(digest, 'utf-8'))
 		return h.hexdigest(3)
 	def getObfuscatedKarma(self):
 		if abs(self.karma) >= 50:
