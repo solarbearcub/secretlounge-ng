@@ -174,11 +174,6 @@ class Database():
 			user = self.getUser(id=id)
 			callback = lambda newuser: self.setUser(user.id, newuser)
 			return ModificationContext(user, callback, self.lock)
-	def modifyDefamations(self, badword, replacement):
-		with self.lock:
-			defamation = self.getDefamation(badword)
-			callback = lambda newreplacement: self.setDefamation(badword, newreplacement)
-			return ModificationContext(defamation, callback, self.lock)
 	def modifySystemConfig(self):
 		with self.lock:
 			config = self.getSystemConfig()
@@ -427,8 +422,8 @@ class SQLiteDatabase(Database):
 		sql = "SELECT * FROM defamations"
 		with self.lock:
 			cur = self.db.execute(sql)
-			l = list(SQLiteDatabase._defamationsToDict(row) for row in cur)
-		yield from l
+			l = list(row for row in cur)
+		yield from SQLiteDatabase._defamationsToDict(l)
 	def getDefamation(self, badword):
 		sql = "SELECT * FROM defamations WHERE badword=?;"
 		with self.lock:
