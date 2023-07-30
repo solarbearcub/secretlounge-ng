@@ -141,9 +141,9 @@ format_strs = {
 	types.ERR_MEDIA_LIMIT: em("You can't send media or forward messages at this time, try again later."),
 	types.ERR_NO_MEDIA_ALLOWED: em("You can't send media or forward messages to this bot."),
 
-	types.NOTIF_BADWORD_VALUE: lambda badword, replacement, **_: em("Badword filters:\n'{badword!x}' will be replaced by '{replacement!x}'"),
-	types.NOTIF_SET_BADWORD: lambda badword, replacement, **_: em("Badword successfully set:\n'{badword!x}' will be replaced by '{replacement!x}'"),
-	types.NOTIF_REMOVE_BADWORD: lambda badword, **_: em("Badword successfully removed:\n'{badword!x}' is now unfiltered"),
+	types.NOTIF_BADWORD_VALUE: lambda filtername, badword, replacement, **_: em("{filtername!x} filters:\n'{badword!x}' will be replaced by '{replacement!x}'"),
+	types.NOTIF_SET_BADWORD: lambda filtername, badword, replacement, **_: em("{filtername!x} successfully set:\n'{badword!x}' will be replaced by '{replacement!x}'"),
+	types.NOTIF_REMOVE_BADWORD: lambda filtername, badword, **_: em("{filtername!x} successfully removed:\n'{badword!x}' is now unfiltered"),
 
 	types.USER_INFO: lambda warnings, cooldown, **_:
 		"<b>id</b>: {id}, <b>username</b>: anonymous, <b>rank</b>: {rank_i} ({rank})\n"+

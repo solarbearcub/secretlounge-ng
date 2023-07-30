@@ -24,7 +24,7 @@ USER_PROPS = (
 	"hideKarma", "debugEnabled", "tripcode"
 )
 
-class Defamation():
+class WordFilter():
 	def __init__(self):
 		self.badword = None
 		self.replacement = None
@@ -152,13 +152,11 @@ class Database():
 		raise NotImplementedError()
 	def iterateUserIds(self) -> Generator[int, None, None]:
 		raise NotImplementedError()
-	def getDefamations(self) -> dict:
+	def getWordFilters(self) -> dict:
 		raise NotImplementedError()
-	def getDefamation(self, badword: str) -> Optional[Defamation]:
+	def setWordFilter(self, wordfilter: str, badword: str, replacement: str):
 		raise NotImplementedError()
-	def setDefamation(self, badword: str, replacement: str):
-		raise NotImplementedError()
-	def removeDefamation(self, badword: str):
+	def removeWordFilter(self, filtername: str):
 		raise NotImplementedError()
 	def getSystemConfig(self) -> Optional[SystemConfig]:
 		raise NotImplementedError()
@@ -304,11 +302,11 @@ class SQLiteDatabase(Database):
 		config.motd = d["motd"]
 		return config
 	@staticmethod
-	def _defamationsToDict(ds):
-		defamationDict = {}
+	def _wordFiltersToDict(ds):
+		wordFilterDict = {}
 		for d in ds:
-			defamationDict[d[0]] = d[1]
-		return defamationDict
+			wordFilterDict[d[0]] = d[1]
+		return wordFilterDict
 	@staticmethod
 	def _userToDict(user):
 		return {prop: getattr(user, prop) for prop in USER_PROPS}
@@ -334,10 +332,11 @@ class SQLiteDatabase(Database):
 			""".strip())
 
 			self.db.execute("""
-				CREATE TABLE IF NOT EXISTS `defamations` (
+				CREATE TABLE IF NOT EXISTS `wordfilters` (
+					`name` TEXT NOT NULL
 					`badword` TEXT NOT NULL,
 					`replacement` TEXT NOT NULL,
-				PRIMARY KEY (`badword`)
+				PRIMARY KEY (`name`)
 			);
 			""".strip())
 
@@ -418,23 +417,23 @@ class SQLiteDatabase(Database):
 		with self.lock:
 			for k, v in d.items():
 				self.db.execute(sql, (k, v))
-	def getDefamations(self):
-		sql = "SELECT * FROM defamations"
+	def getWordFilters(self):
+		sql = "SELECT * FROM wordfilters"
 		with self.lock:
 			cur = self.db.execute(sql)
 			l = cur.fetchall()
-		return SQLiteDatabase._defamationsToDict(l)
-	def getDefamation(self, badword):
-		sql = "SELECT * FROM defamations WHERE badword=?;"
+		return SQLiteDatabase._wordFiltersToDict(l)
+	def getWordFilter(self, filtername):
+		sql = "SELECT * FROM wordfilters  WHERE filtername=?;"
 		with self.lock:
-			cur = self.db.execute(sql, (badword, ))
-			l = SQLiteDatabase._defamationsToDict(cur.fetchone())
+			cur = self.db.execute(sql, (filtername, ))
+			l = SQLiteDatabase._wordFiltersToDict(cur.fetchone())
 		yield from l
-	def setDefamation(self, badword, replacement):
-		sql = "INSERT INTO defamations VALUES (?,?) ON CONFLICT(badword) DO UPDATE SET replacement=?;"
+	def setWordFilter(self, filtername, badword, replacement):
+		sql = "INSERT INTO wordfilter VALUES (?,?,?) ON CONFLICT(filtername) DO UPDATE SET badword=? replacement=?;"
 		with self.lock:
-			self.db.execute(sql, (badword, replacement, replacement))
-	def removeDefamation(self, badword):
-		sql = "DELETE FROM defamations WHERE badword=?;"
+			self.db.execute(sql, (filtername, badword, replacement, badword, replacement))
+	def removeWordFilter(self, filtername):
+		sql = "DELETE FROM wordfilter WHERE filtername=?;"
 		with self.lock:
-			self.db.execute(sql, (badword, ))
+			self.db.execute(sql, (filtername, ))

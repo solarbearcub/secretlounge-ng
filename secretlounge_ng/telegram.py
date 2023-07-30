@@ -188,7 +188,7 @@ def allow_message_text(text):
 
 def update_badwords():
 	global text_replacer
-	text_replacer = db.getDefamations()
+	text_replacer = db.getWordFilters()
 
 # determine spam score for message `ev`
 def calc_spam_score(ev):
@@ -609,9 +609,11 @@ def cmd_motd(ev, arg):
 @takesArgument(optional=False)
 def cmd_sed(ev, arg):
 	c_user = UserContainer(ev.from_user)
-	if "/" in arg:
-		parts = arg.split("/")
-		send_answer(ev, core.set_badword(c_user, parts[0], parts[1]), False)
+	if " " in arg:
+		parts = arg.split(" ")
+		if len(parts) != 3:
+			send_answer(ev, rp.Reply(rp.types.CUSTOM, text="Incorrect usage."), False)
+		send_answer(ev, core.set_badword(c_user, parts[0], parts[1], parts[2]), False)
 		update_badwords()
 	else:
 		if arg in text_replacer.keys():
@@ -622,7 +624,8 @@ def cmd_sed(ev, arg):
 @takesArgument(optional=False)
 def cmd_rsed(ev, arg):
 	c_user = UserContainer(ev.from_user)
-	send_answer(ev, core.remove_badword(c_user, arg), False)
+	send_answer(ev, core.remove_badword(c_user, arg, text_replacer[arg].badword), False)
+	update_badwords()
 
 cmd_toggledebug = wrap_core(core.toggle_debug)
 cmd_togglekarma = wrap_core(core.toggle_karma)

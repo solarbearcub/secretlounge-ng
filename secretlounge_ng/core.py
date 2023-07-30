@@ -341,16 +341,16 @@ def set_tripcode(user, text):
 
 @requireUser
 @requireRank(RANKS.admin)
-def set_badword(user, badword, replacement):
-	db.setDefamation(badword, replacement)
-	_push_system_message(rp.Reply(rp.types.NOTIF_SET_BADWORD, badword=badword, replacement=replacement))
+def set_badword(user, filtername, badword, replacement):
+	db.setWordFilter(filtername, badword, replacement)
+	_push_system_message(rp.Reply(rp.types.NOTIF_SET_BADWORD, filtername=filtername, badword=badword, replacement=replacement))
 	logging.info("Filter for %s was set by %s to: %s", user, badword, replacement)
 
 @requireUser
 @requireRank(RANKS.admin)
-def remove_badword(user, badword):
-	db.removeDefamation(badword)
-	_push_system_message(rp.Reply(rp.types.NOTIF_REMOVE_BADWORD, badword=badword))
+def remove_badword(user, filtername, badword):
+	db.removeWordFilter(filtername, badword)
+	_push_system_message(rp.Reply(rp.types.NOTIF_REMOVE_BADWORD, filtername=filtername, badword=badword))
 	logging.info("Filter for %s was deleted by %s", user, badword)
 
 @requireUser
