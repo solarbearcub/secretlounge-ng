@@ -609,17 +609,18 @@ def cmd_motd(ev, arg):
 
 @takesArgument(optional=False)
 def cmd_sed(ev, arg):
-	print(ev, arg)
+	c_user = UserContainer(ev.from_user)
 	if "/" in arg:
 		parts = arg.split("/")
-		send_answer(ev, core.set_badword(parts[0], parts[1]), True)
+		send_answer(ev, core.set_badword(c_user, parts[0], parts[1]), True)
 		update_badwords()
 	else:
 		send_answer(ev, rp.Reply(rp.types.CUSTOM, text=arg), True)
 
 @takesArgument(optional=False)
 def cmd_rsed(ev, arg):
-	send_answer(ev, core.remove_badword(arg), True)
+	c_user = UserContainer(ev.from_user)
+	send_answer(ev, core.remove_badword(c_user, arg), True)
 
 cmd_toggledebug = wrap_core(core.toggle_debug)
 cmd_togglekarma = wrap_core(core.toggle_karma)
