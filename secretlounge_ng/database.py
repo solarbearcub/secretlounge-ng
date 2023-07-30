@@ -424,16 +424,16 @@ class SQLiteDatabase(Database):
 			l = cur.fetchall()
 		return SQLiteDatabase._wordFiltersToDict(l)
 	def getWordFilter(self, filtername):
-		sql = "SELECT * FROM wordfilters  WHERE filtername=?;"
+		sql = "SELECT * FROM wordfilters  WHERE name=?;"
 		with self.lock:
 			cur = self.db.execute(sql, (filtername, ))
 			l = SQLiteDatabase._wordFiltersToDict(cur.fetchone())
 		yield from l
 	def setWordFilter(self, filtername, badword, replacement):
-		sql = "INSERT INTO wordfilters VALUES (?,?,?) ON CONFLICT(filtername) DO UPDATE SET badword=?, replacement=?;"
+		sql = "INSERT INTO wordfilters VALUES (?,?,?) ON CONFLICT(name) DO UPDATE SET badword=?, replacement=?;"
 		with self.lock:
 			self.db.execute(sql, (filtername, badword, replacement, badword, replacement))
 	def removeWordFilter(self, filtername):
-		sql = "DELETE FROM wordfilters WHERE filtername=?;"
+		sql = "DELETE FROM wordfilters WHERE name=?;"
 		with self.lock:
 			self.db.execute(sql, (filtername, ))
