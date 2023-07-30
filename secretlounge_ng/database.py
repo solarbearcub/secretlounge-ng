@@ -67,7 +67,7 @@ class User():
 	def getObfuscatedId(self, id_refresh_interval):
 		day = date.today().toordinal()
 		interval = 1 + int(datetime.now().hour/id_refresh_interval)
-		digest = day * interval * self.id
+		digest = (day*interval*self.id).__str__()
 		h = hashlib.shake_256(digest.to_bytes(2, 'big'))
 		return h.hexdigest(3)
 	def getObfuscatedKarma(self):
