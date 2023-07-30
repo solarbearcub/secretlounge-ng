@@ -24,6 +24,14 @@ USER_PROPS = (
 	"hideKarma", "debugEnabled", "tripcode"
 )
 
+class Defamation():
+	def __init__(self):
+		self.badword = None
+		self.replacement = None
+	def defaults(self):
+		self.badword = ""
+		self.replacement = ""
+
 class User():
 	__slots__ = USER_PROPS
 	id: int
@@ -64,9 +72,9 @@ class User():
 		return self.cooldownUntil is not None and self.cooldownUntil >= datetime.now()
 	def isBlacklisted(self):
 		return self.rank < 0
-	def getObfuscatedId(self, id_refresh_interval):
+	def getObfuscatedId(self, id_refresh_interval, modsalt=1):
 		day = date.today().toordinal()
-		interval = 1 + int(datetime.now().hour/id_refresh_interval)
+		interval = 1 + int(datetime.now().hour/id_refresh_interval) * modsalt
 		digest = (day*interval*self.id).__str__()
 		h = hashlib.shake_256(bytes(digest, 'utf-8'))
 		return h.hexdigest(3)
@@ -144,6 +152,14 @@ class Database():
 		raise NotImplementedError()
 	def iterateUserIds(self) -> Generator[int, None, None]:
 		raise NotImplementedError()
+	def getDefamations(self) -> Generator[Defamation, None, None]:
+		raise NotImplementedError()
+	def getDefamation(self, badword: str) -> Optional[Defamation]:
+		raise NotImplementedError()
+	def setDefamation(self, badword: str, replacement: str):
+		raise NotImplementedError()
+	def removeDefamation(self, badword: str):
+		raise NotImplementedError()
 	def getSystemConfig(self) -> Optional[SystemConfig]:
 		raise NotImplementedError()
 	def setSystemConfig(self, config: SystemConfig):
@@ -158,6 +174,11 @@ class Database():
 			user = self.getUser(id=id)
 			callback = lambda newuser: self.setUser(user.id, newuser)
 			return ModificationContext(user, callback, self.lock)
+	def modifyDefamations(self, badword, replacement):
+		with self.lock:
+			defamation = self.getDefamation(badword)
+			callback = lambda newreplacement: self.setDefamation(badword, newreplacement)
+			return ModificationContext(defamation, callback, self.lock)
 	def modifySystemConfig(self):
 		with self.lock:
 			config = self.getSystemConfig()
@@ -288,6 +309,12 @@ class SQLiteDatabase(Database):
 		config.motd = d["motd"]
 		return config
 	@staticmethod
+	def _defamationsToDict(ds):
+		defamationDict = {}
+		for defamation in ds:
+			defamationDict[defamation.badword] = defamation.replacement
+		return defamationDict
+	@staticmethod
 	def _userToDict(user):
 		return {prop: getattr(user, prop) for prop in USER_PROPS}
 	@staticmethod
@@ -304,31 +331,40 @@ class SQLiteDatabase(Database):
 		with self.lock:
 			# create initial schema
 			self.db.execute("""
-CREATE TABLE IF NOT EXISTS `system_config` (
-	`name` TEXT NOT NULL,
-	`value` TEXT NOT NULL,
-	PRIMARY KEY (`name`)
-);
+				CREATE TABLE IF NOT EXISTS `system_config` (
+					`name` TEXT NOT NULL,
+					`value` TEXT NOT NULL,
+					PRIMARY KEY (`name`)
+				);
 			""".strip())
+
 			self.db.execute("""
-CREATE TABLE IF NOT EXISTS `users` (
-	`id` BIGINT NOT NULL,
-	`username` TEXT,
-	`realname` TEXT NOT NULL,
-	`rank` INTEGER NOT NULL,
-	`joined` TIMESTAMP NOT NULL,
-	`left` TIMESTAMP,
-	`lastActive` TIMESTAMP NOT NULL,
-	`cooldownUntil` TIMESTAMP,
-	`blacklistReason` TEXT,
-	`warnings` INTEGER NOT NULL,
-	`warnExpiry` TIMESTAMP,
-	`karma` INTEGER NOT NULL,
-	`hideKarma` TINYINT NOT NULL,
-	`debugEnabled` TINYINT NOT NULL,
-	`tripcode` TEXT,
-	PRIMARY KEY (`id`)
-);
+				CREATE TABLE IF NOT EXISTS `defamations` (
+					`badword` TEXT NOT NULL,
+					`replacement` TEXT NOT NULL,
+				PRIMARY KEY (`badword`)
+			);
+			""".strip())
+
+			self.db.execute("""
+				CREATE TABLE IF NOT EXISTS `users` (
+					`id` BIGINT NOT NULL,
+					`username` TEXT,
+					`realname` TEXT NOT NULL,
+					`rank` INTEGER NOT NULL,
+					`joined` TIMESTAMP NOT NULL,
+					`left` TIMESTAMP,
+					`lastActive` TIMESTAMP NOT NULL,
+					`cooldownUntil` TIMESTAMP,
+					`blacklistReason` TEXT,
+					`warnings` INTEGER NOT NULL,
+					`warnExpiry` TIMESTAMP,
+					`karma` INTEGER NOT NULL,
+					`hideKarma` TINYINT NOT NULL,
+					`debugEnabled` TINYINT NOT NULL,
+					`tripcode` TEXT,
+					PRIMARY KEY (`id`)
+				);
 			""".strip())
 			# migration
 			if not row_exists("users", "tripcode"):
@@ -387,3 +423,23 @@ CREATE TABLE IF NOT EXISTS `users` (
 		with self.lock:
 			for k, v in d.items():
 				self.db.execute(sql, (k, v))
+	def getDefamations(self):
+		sql = "SELECT * FROM defamations"
+		with self.lock:
+			cur = self.db.execute(sql)
+			l = list(SQLiteDatabase._defamationsToDict(row) for row in cur)
+		yield from l
+	def getDefamation(self, badword):
+		sql = "SELECT * FROM defamations WHERE badword=?;"
+		with self.lock:
+			cur = self.db.execute(sql, (badword, ))
+			l = SQLiteDatabase._defamationsToDict(cur.fetchone())
+		yield from l
+	def setDefamation(self, badword, replacement):
+		sql = "INSERT INTO defamations VALUES (?,?) ON CONFLICT(badword) DO UPDATE SET replacement=?;"
+		with self.lock:
+			self.db.execute(sql, (badword, replacement, replacement))
+	def removeDefamation(self, badword):
+		sql = "DELETE FROM defamations WHERE badword=?;"
+		with self.lock:
+			self.db.execute(sql, (badword, ))

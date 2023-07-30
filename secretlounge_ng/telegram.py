@@ -33,6 +33,8 @@ ch = None
 message_queue = None
 registered_commands = {}
 
+text_replacer = None
+
 # settings
 allow_documents: bool = None
 allow_media: bool = None
@@ -41,7 +43,7 @@ id_refresh_interval: bool = None
 id_visible: bool = None
 
 def init(config, _db, _ch):
-	global bot, db, ch, message_queue, allow_documents, allow_media, linked_network, id_refresh_interval, id_visible
+	global bot, db, ch, message_queue, allow_documents, allow_media, linked_network, id_refresh_interval, id_visible, text_replacer
 	if config["bot_token"] == "":
 		logging.error("No telegram token specified.")
 		exit(1)
@@ -72,11 +74,12 @@ def init(config, _db, _ch):
 	types += ["animation", "audio", "photo", "sticker", "video", "video_note", "voice"]
 
 	cmds = [
-		"start", "stop", "users", "info", "motd", "toggledebug", "togglekarma",
+		"start", "stop", "users", "id", "motd", "toggledebug", "togglekarma",
 		"version", "source", "modhelp", "adminhelp", "modsay", "adminsay", "mod",
 		"admin", "warn", "delete", "remove", "uncooldown", "blacklist", "s", "sign",
-		"tripcode", "t", "tsign", "cleanup"
+		"sed", "rsed", "tripcode", "t", "tsign", "cleanup"
 	]
+	update_badwords()
 	for c in cmds: # maps /<c> to the function cmd_<c>
 		c = c.lower()
 		registered_commands[c] = globals()["cmd_" + c]
@@ -183,6 +186,10 @@ def allow_message_text(text):
 		return False
 	return True
 
+def update_badwords():
+	global text_replacer
+	text_replacer = db.getDefamations()
+
 # determine spam score for message `ev`
 def calc_spam_score(ev):
 	if not allow_message_text(ev.text) or not allow_message_text(ev.caption):
@@ -242,6 +249,8 @@ class FormattedMessageBuilder():
 		self.insert(0, content, html, True)
 	def append(self, content: str, html=False):
 		self.insert(len(self.text_content), content, html)
+	def replace(self, new_text):
+		self.text_content = new_text
 	def enclose(self, pos1: int, pos2: int, content_begin: str, content_end: str, html=False):
 		self.insert(pos1, content_begin, html)
 		self.insert(pos2, content_end, html, True)
@@ -275,6 +284,13 @@ def formatter_replace_links(ev, fmt: FormattedMessageBuilder):
 			if "://t.me/" in ent.url and "?start=" in ent.url:
 				continue # deep links look ugly and are likely not important
 			fmt.append("\n(%s)" % ent.url)
+
+# Filter bad words into better ones :)
+def formatter_replace_badwords(fmt: FormattedMessageBuilder):
+	text = fmt.get_text()
+	for badword in text_replacer.keys():
+		text = re.sub(badword, text_replacer[badword], text)
+	fmt.replace(text)
 
 # Add inline links for >>>/name/ syntax depending on configuration
 def formatter_network_links(fmt: FormattedMessageBuilder):
@@ -572,7 +588,7 @@ cmd_stop = wrap_core(core.user_leave)
 
 cmd_users = wrap_core(core.get_users)
 
-def cmd_info(ev):
+def cmd_id(ev):
 	c_user = UserContainer(ev.from_user)
 	if ev.reply_to_message is None:
 		return send_answer(ev, core.get_info(c_user), True)
@@ -590,6 +606,18 @@ def cmd_motd(ev, arg):
 		send_answer(ev, core.get_motd(c_user), reply_to=True)
 	else:
 		send_answer(ev, core.set_motd(c_user, arg), reply_to=True)
+
+@takesArgument(optional=True)
+def cmd_sed(ev, arg):
+	if arg.includes("/"):
+		parts = arg.split("/")
+		send_answer(ev, core.set_badword(parts[0], parts[1]), True)
+		update_badwords()
+	else:
+		send_answer(ev, rp.Reply(rp.types.NOTIF_BADWORD_VALUE), True)
+
+cmd_setfilter = wrap_core(core.set_badword)
+cmd_removefilter = wrap_core(core.remove_badword)
 
 cmd_toggledebug = wrap_core(core.toggle_debug)
 cmd_togglekarma = wrap_core(core.toggle_karma)
@@ -747,6 +775,7 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False):
 		pass # leave message alone
 	elif ev.content_type == "text" or ev.caption is not None or caption_text is not None:
 		fmt = FormattedMessageBuilder(caption_text, ev.caption, ev.text)
+		formatter_replace_badwords(fmt)
 		formatter_replace_links(ev, fmt)
 		formatter_network_links(fmt)
 		if id_visible:

@@ -341,6 +341,18 @@ def set_tripcode(user, text):
 
 @requireUser
 @requireRank(RANKS.admin)
+def set_badword(badword, replacement):
+	db.setDefamation(badword, replacement)
+	return rp.Reply(rp.types.NOTIF_SET_BADWORD)
+
+@requireUser
+@requireRank(RANKS.admin)
+def remove_badword(badword):
+	db.removeDefamation(badword)
+	return rp.Reply(rp.types.NOTIF_REMOVE_BADWORD)
+
+@requireUser
+@requireRank(RANKS.admin)
 def promote_user(user, username2, rank):
 	user2 = getUserByName(username2)
 	if user2 is None:
@@ -360,7 +372,7 @@ def promote_user(user, username2, rank):
 @requireUser
 @requireRank(RANKS.mod)
 def send_mod_message(user, arg):
-	text = arg + " ~<b>mods</b>"
+	text = arg + " ~<b>secret police {}</b>".format(user.getObfuscatedId(id_refresh_interval, modsalt=2))
 	m = rp.Reply(rp.types.CUSTOM, text=text)
 	_push_system_message(m)
 	logging.info("%s sent mod message: %s", user, arg)
@@ -368,7 +380,7 @@ def send_mod_message(user, arg):
 @requireUser
 @requireRank(RANKS.admin)
 def send_admin_message(user, arg):
-	text = arg + " ~<b>admins</b>"
+	text = arg + " ~<b>big brother {}</b>".format(user.getObfuscatedId(id_refresh_interval, modsalt=3))
 	m = rp.Reply(rp.types.CUSTOM, text=text)
 	_push_system_message(m)
 	logging.info("%s sent admin message: %s", user, arg)

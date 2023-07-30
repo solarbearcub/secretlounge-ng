@@ -63,6 +63,9 @@ types = NumericEnum([
 	"ERR_MEDIA_LIMIT",
 	"ERR_NO_MEDIA_ALLOWED",
 
+	"NOTIF_SET_BADWORD",
+	"NOTIF_REMOVE_BADWORD"
+
 	"USER_INFO",
 	"USER_INFO_MOD",
 	"USER_NEW_ID",
@@ -136,6 +139,10 @@ format_strs = {
 	types.ERR_NO_TRIPCODE: em("You don't have a tripcode set."),
 	types.ERR_MEDIA_LIMIT: em("You can't send media or forward messages at this time, try again later."),
 	types.ERR_NO_MEDIA_ALLOWED: em("You can't send media or forward messages to this bot."),
+
+	types.NOTIF_BADWORD_VALUE: lambda badword, replacement, **_: em("Badword filters:\n'{badword!x}' will be replaced by '{replacement!x}'"),
+	types.NOTIF_SET_BADWORD: lambda badword, replacement, **_: em("Badword successfully set:\n'{badword!x}' will be replaced by '{replacement!x}'"),
+	types.NOTIF_REMOVE_BADWORD: lambda badword, **_: em("Badword successfully removed:\n'{badword!x}' is now unfiltered"),
 
 	types.USER_INFO: lambda warnings, cooldown, **_:
 		"<b>id</b>: {id}, <b>username</b>: anonymous, <b>rank</b>: {rank_i} ({rank})\n"+
