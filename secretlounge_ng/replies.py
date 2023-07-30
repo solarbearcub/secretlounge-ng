@@ -150,7 +150,7 @@ format_strs = {
 		"<b>cooldown</b>: "+
 		( cooldown and "yes, until {cooldown!t}" or "no" ),
 	types.USER_NEW_ID: lambda id, **_:
-		em("You have been assigned a new ID: ") + "<b>{id}</b>",
+		em("Your new government generated ID: ") + "<code>{id}</code>",
 	types.USERS_INFO: "<b>{count}</b> <i>users</i>",
 	types.USERS_INFO_EXTENDED:
 		"<b>{active}</b> <i>active</i>, {inactive} <i>inactive and</i> "+

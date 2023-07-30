@@ -2,6 +2,7 @@ import logging
 import os
 import json
 import sqlite3
+import hashlib
 from datetime import date, datetime, timedelta, timezone
 from random import randint
 from threading import RLock
@@ -65,12 +66,9 @@ class User():
 		return self.rank < 0
 	def getObfuscatedId(self, id_refresh_interval):
 		salt = date.today().toordinal()*24 + int(datetime.now().hour/id_refresh_interval)
-		if salt & 0xff == 0: salt >>= 8 # zero bits are bad for hashing
-		value = (self.id * salt) & 0xffffff
-		alpha = "0123456789ABCDEFGHIJKLMNOPQRSTUV"
-		# Use recognizable symbols to cap off IDs
-		cap = ["🟥","🟦","🟧","🟨","🟪","⬛","⬜","🔴","🟠","🟡","🔵","🟣","⚫","⚪","🔶","🔷"] 
-		return ''.join(alpha[n%32] for n in (value>>5, value>>10, value>>15)) + cap[value%16]
+		digest = salt * self.id
+		h = hashlib.shake_256(digest.to_bytes(2, 'big'))
+		return h.hexdigest(3)
 	def getObfuscatedKarma(self):
 		if abs(self.karma) >= 50:
 			return max(-50, min(self.karma, 50))
