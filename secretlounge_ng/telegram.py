@@ -289,7 +289,7 @@ def formatter_replace_links(ev, fmt: FormattedMessageBuilder):
 def formatter_replace_badwords(fmt: FormattedMessageBuilder):
 	text = fmt.get_text()
 	for badword in text_replacer.keys():
-		text = re.sub(badword, text_replacer[badword], text)
+		text = re.sub(badword, text_replacer[badword], text, flags=re.IGNORECASE | re.MULTILINE)
 	fmt.replace(text)
 
 # Add inline links for >>>/name/ syntax depending on configuration
@@ -584,7 +584,6 @@ class MyReceiver(core.Receiver):
 
 cmd_start = wrap_core(core.user_join)
 cmd_stop = wrap_core(core.user_leave)
-
 
 cmd_users = wrap_core(core.get_users)
 
