@@ -333,7 +333,7 @@ class SQLiteDatabase(Database):
 
 			self.db.execute("""
 				CREATE TABLE IF NOT EXISTS `wordfilters` (
-					`name` TEXT NOT NULL
+					`name` TEXT NOT NULL,
 					`badword` TEXT NOT NULL,
 					`replacement` TEXT NOT NULL,
 				PRIMARY KEY (`name`)
