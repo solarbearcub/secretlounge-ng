@@ -612,15 +612,18 @@ def cmd_sed(ev, arg):
 	c_user = UserContainer(ev.from_user)
 	if "/" in arg:
 		parts = arg.split("/")
-		send_answer(ev, core.set_badword(c_user, parts[0], parts[1]), True)
+		send_answer(ev, core.set_badword(c_user, parts[0], parts[1]), False)
 		update_badwords()
 	else:
-		send_answer(ev, rp.Reply(rp.types.CUSTOM, text=arg), True)
+		if arg in text_replacer.keys():
+			send_answer(ev, rp.Reply(rp.types.CUSTOM, text=text_replacer[arg]), False)
+		else:
+			send_answer(ev, rp.Reply(rp.types.CUSTOM, text="No such filter."), False)
 
 @takesArgument(optional=False)
 def cmd_rsed(ev, arg):
 	c_user = UserContainer(ev.from_user)
-	send_answer(ev, core.remove_badword(c_user, arg), True)
+	send_answer(ev, core.remove_badword(c_user, arg), False)
 
 cmd_toggledebug = wrap_core(core.toggle_debug)
 cmd_togglekarma = wrap_core(core.toggle_karma)
