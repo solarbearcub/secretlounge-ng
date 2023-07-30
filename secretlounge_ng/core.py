@@ -356,7 +356,7 @@ def set_badword(user, filtername, badword, replacement):
 @requireUser
 @requireRank(RANKS.admin)
 def remove_badword(user, filtername, badword):
-	db.removeWordFilter(filtername, badword)
+	db.removeWordFilter(filtername)
 	_push_system_message(rp.Reply(rp.types.NOTIF_REMOVE_BADWORD, filtername=filtername, badword=badword), who=user)
 	logging.info("Filter for %s was deleted by %s", user, badword)
 
