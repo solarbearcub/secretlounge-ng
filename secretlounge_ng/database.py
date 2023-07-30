@@ -152,7 +152,7 @@ class Database():
 		raise NotImplementedError()
 	def iterateUserIds(self) -> Generator[int, None, None]:
 		raise NotImplementedError()
-	def getDefamations(self) -> Generator[Defamation, None, None]:
+	def getDefamations(self) -> dict:
 		raise NotImplementedError()
 	def getDefamation(self, badword: str) -> Optional[Defamation]:
 		raise NotImplementedError()
