@@ -69,6 +69,7 @@ types = NumericEnum([
 
 	"USER_INFO",
 	"USER_INFO_MOD",
+	"USER_ID_REFRESH",
 	"USER_NEW_ID",
 	"USERS_INFO",
 	"USERS_INFO_EXTENDED",
@@ -157,6 +158,7 @@ format_strs = {
 		"<b>karma bracket</b>: {karma}\n"+
 		"<b>cooldown</b>: "+
 		( cooldown and "yes, until {cooldown!t}" or "no" ),
+	types.USER_ID_REFRESH: em("All users have been sent to re-education.\nIdentifies have been refreshed."),
 	types.USER_NEW_ID: lambda id, **_:
 		em("Your new government generated ID: ") + "<code>{id}</code>",
 	types.USERS_INFO: "<b>{count}</b> <i>users</i>",

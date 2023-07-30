@@ -58,6 +58,13 @@ def register_tasks(sched):
 			if user.warnExpiry is not None and now >= user.warnExpiry:
 				with db.modifyUser(id=user.id) as user:
 					user.removeWarning()
+	# ID update task
+	before = get_session_id(id_refresh_interval)
+	def reeducation():
+		now = get_session_id(id_refresh_interval)
+		if before != now:
+			_push_system_message
+	sched.register()
 	sched.register(task, minutes=15)
 
 def updateUserFromEvent(user, c_user):
@@ -343,14 +350,14 @@ def set_tripcode(user, text):
 @requireRank(RANKS.admin)
 def set_badword(user, filtername, badword, replacement):
 	db.setWordFilter(filtername, badword, replacement)
-	_push_system_message(rp.Reply(rp.types.NOTIF_SET_BADWORD, filtername=filtername, badword=badword, replacement=replacement))
+	_push_system_message(rp.Reply(rp.types.NOTIF_SET_BADWORD, filtername=filtername, badword=badword, replacement=replacement), who=user)
 	logging.info("Filter for %s was set by %s to: %s", user, badword, replacement)
 
 @requireUser
 @requireRank(RANKS.admin)
 def remove_badword(user, filtername, badword):
 	db.removeWordFilter(filtername, badword)
-	_push_system_message(rp.Reply(rp.types.NOTIF_REMOVE_BADWORD, filtername=filtername, badword=badword))
+	_push_system_message(rp.Reply(rp.types.NOTIF_REMOVE_BADWORD, filtername=filtername, badword=badword), who=user)
 	logging.info("Filter for %s was deleted by %s", user, badword)
 
 @requireUser

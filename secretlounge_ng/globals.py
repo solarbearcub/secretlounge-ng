@@ -37,6 +37,12 @@ def dump(obj, name=None, r=False):
 		else:
 			print("%s%s = %r" % (name, e, ev))
 
+
+def get_session_id(id_refresh_interval):
+	day = datetime.date.today().toordinal()
+	interval = 1 + int(datetime.now().hour/id_refresh_interval)
+	return day * interval
+
 # Program version
 VERSION = "1.8"
 
