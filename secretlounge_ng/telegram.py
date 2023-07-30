@@ -38,7 +38,7 @@ allow_documents: bool = None
 allow_media: bool = None
 linked_network: dict = None
 id_refresh_interval: bool = None
-id_visible
+id_visible: bool = None
 
 def init(config, _db, _ch):
 	global bot, db, ch, message_queue, allow_documents, allow_media, linked_network, id_refresh_interval, id_visible
