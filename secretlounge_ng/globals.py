@@ -39,7 +39,7 @@ def dump(obj, name=None, r=False):
 
 
 def get_session_id(id_refresh_interval):
-	day = datetime.datetime.today().toordinal()
+	day = datetime.today().toordinal()
 	interval = 1 + int(datetime.now().hour/id_refresh_interval)
 	return day * interval
 
