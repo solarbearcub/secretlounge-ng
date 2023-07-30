@@ -289,9 +289,12 @@ def formatter_replace_links(ev, fmt: FormattedMessageBuilder):
 def formatter_replace_badwords(fmt: FormattedMessageBuilder):
 	text = fmt.get_text()
 	for filterword in text_replacer.keys():
-		badword = text_replacer[filterword].badword
-		replacer = text_replacer[filterword].replacement
-		text = re.sub(badword, replacer, text, flags=re.IGNORECASE | re.MULTILINE)
+		try:
+			badword = text_replacer[filterword].badword
+			replacer = text_replacer[filterword].replacement
+			text = re.sub(badword, replacer, text, flags=re.IGNORECASE | re.MULTILINE)
+		except Exception as e:
+			logging.exception("Exception raised during filter replace")
 	fmt.replace(text)
 
 # Add inline links for >>>/name/ syntax depending on configuration
