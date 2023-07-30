@@ -611,7 +611,7 @@ def cmd_sed(ev, arg):
 	c_user = UserContainer(ev.from_user)
 	if " " in arg:
 		parts = arg.split(" ")
-		if len(parts) != 3:
+		if len(parts) < 3:
 			send_answer(ev, rp.Reply(rp.types.CUSTOM, text="Incorrect usage."), False)
 		send_answer(ev, core.set_badword(c_user, parts[0], parts[1], " ".join(parts[2:])), False)
 		update_badwords()
