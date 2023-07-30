@@ -305,7 +305,10 @@ class SQLiteDatabase(Database):
 	def _wordFiltersToDict(ds):
 		wordFilterDict = {}
 		for d in ds:
-			wordFilterDict[d[0]] = d[1]
+			filt = WordFilter()
+			filt.badword = d[1]
+			filt.replacement = d[2]
+			wordFilterDict[d[0]] = filt
 		return wordFilterDict
 	@staticmethod
 	def _userToDict(user):

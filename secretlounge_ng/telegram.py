@@ -288,8 +288,10 @@ def formatter_replace_links(ev, fmt: FormattedMessageBuilder):
 # Filter bad words into better ones :)
 def formatter_replace_badwords(fmt: FormattedMessageBuilder):
 	text = fmt.get_text()
-	for badword in text_replacer.keys():
-		text = re.sub(badword, text_replacer[badword], text, flags=re.IGNORECASE | re.MULTILINE)
+	for filterword in text_replacer.keys():
+		badword = text_replacer[filterword].badword
+		replacer = text_replacer[filterword].replacement
+		text = re.sub(badword, replacer, text, flags=re.IGNORECASE | re.MULTILINE)
 	fmt.replace(text)
 
 # Add inline links for >>>/name/ syntax depending on configuration
@@ -617,7 +619,7 @@ def cmd_sed(ev, arg):
 		update_badwords()
 	else:
 		if arg in text_replacer.keys():
-			send_answer(ev, rp.Reply(rp.types.CUSTOM, text=text_replacer[arg]), False)
+			send_answer(ev, rp.Reply(rp.types.CUSTOM, text=text_replacer[arg].badword), False)
 		else:
 			send_answer(ev, rp.Reply(rp.types.CUSTOM, text="No such filter."), False)
 
