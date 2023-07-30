@@ -306,8 +306,8 @@ class SQLiteDatabase(Database):
 	@staticmethod
 	def _defamationsToDict(ds):
 		defamationDict = {}
-		for defamation in ds:
-			defamationDict[defamation.badword] = defamation.replacement
+		for d in ds:
+			defamationDict[d[0]] = d[1]
 		return defamationDict
 	@staticmethod
 	def _userToDict(user):
@@ -422,7 +422,7 @@ class SQLiteDatabase(Database):
 		sql = "SELECT * FROM defamations"
 		with self.lock:
 			cur = self.db.execute(sql)
-			l = [row for row in cur]
+			l = cur.fetchall()
 		return SQLiteDatabase._defamationsToDict(l)
 	def getDefamation(self, badword):
 		sql = "SELECT * FROM defamations WHERE badword=?;"
