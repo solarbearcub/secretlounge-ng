@@ -616,8 +616,9 @@ def cmd_sed(ev, arg):
 	else:
 		send_answer(ev, rp.Reply(rp.types.NOTIF_BADWORD_VALUE), True)
 
-cmd_setfilter = wrap_core(core.set_badword)
-cmd_removefilter = wrap_core(core.remove_badword)
+@takesArgument(optional=True)
+def cmd_rsed(ev, arg):
+	send_answer(ev, core.remove_badword(arg), True)
 
 cmd_toggledebug = wrap_core(core.toggle_debug)
 cmd_togglekarma = wrap_core(core.toggle_karma)
