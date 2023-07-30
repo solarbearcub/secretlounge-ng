@@ -34,7 +34,7 @@ def init(config, _db, _ch):
 	if "media_limit_period" in config.keys():
 		media_limit_period = timedelta(hours=int(config["media_limit_period"]))
 	sign_interval = timedelta(seconds=int(config.get("sign_limit_interval", 600)))
-	id_refresh_interval = int(timedelta(hours=int(config.get("id_refresh_interval", 24))))
+	id_refresh_interval = int(config.get("id_refresh_interval", 24))
 	id_visible = config.get("id_visible", False)
 
 	if config.get("locale"):
