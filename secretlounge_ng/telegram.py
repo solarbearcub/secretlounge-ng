@@ -607,16 +607,17 @@ def cmd_motd(ev, arg):
 	else:
 		send_answer(ev, core.set_motd(c_user, arg), reply_to=True)
 
-@takesArgument(optional=True)
+@takesArgument(optional=False)
 def cmd_sed(ev, arg):
+	print(ev, arg)
 	if "/" in arg:
 		parts = arg.split("/")
 		send_answer(ev, core.set_badword(parts[0], parts[1]), True)
 		update_badwords()
 	else:
-		send_answer(ev, rp.Reply(rp.types.NOTIF_BADWORD_VALUE), True)
+		send_answer(ev, rp.Reply(rp.types.CUSTOM, text=arg), True)
 
-@takesArgument(optional=True)
+@takesArgument(optional=False)
 def cmd_rsed(ev, arg):
 	send_answer(ev, core.remove_badword(arg), True)
 

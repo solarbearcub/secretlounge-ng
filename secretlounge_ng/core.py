@@ -343,13 +343,13 @@ def set_tripcode(user, text):
 @requireRank(RANKS.admin)
 def set_badword(badword, replacement):
 	db.setDefamation(badword, replacement)
-	return rp.Reply(rp.types.NOTIF_SET_BADWORD)
+	return rp.Reply(rp.types.NOTIF_SET_BADWORD, badword=badword, replacement=replacement)
 
 @requireUser
 @requireRank(RANKS.admin)
 def remove_badword(badword):
 	db.removeDefamation(badword)
-	return rp.Reply(rp.types.NOTIF_REMOVE_BADWORD)
+	return rp.Reply(rp.types.NOTIF_REMOVE_BADWORD, badword=badword)
 
 @requireUser
 @requireRank(RANKS.admin)
