@@ -422,8 +422,8 @@ class SQLiteDatabase(Database):
 		sql = "SELECT * FROM defamations"
 		with self.lock:
 			cur = self.db.execute(sql)
-			l = list(row for row in cur)
-		yield from SQLiteDatabase._defamationsToDict(l)
+			l = [row for row in cur]
+		return SQLiteDatabase._defamationsToDict(l)
 	def getDefamation(self, badword):
 		sql = "SELECT * FROM defamations WHERE badword=?;"
 		with self.lock:
