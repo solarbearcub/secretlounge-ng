@@ -65,8 +65,9 @@ class User():
 	def isBlacklisted(self):
 		return self.rank < 0
 	def getObfuscatedId(self, id_refresh_interval):
-		salt = date.today().toordinal()*24 + int(datetime.now().hour/id_refresh_interval)
-		digest = salt * self.id
+		day = date.today().toordinal()
+		interval = 1 + int(datetime.now().hour/id_refresh_interval)
+		digest = day * interval * self.id
 		h = hashlib.shake_256(digest.to_bytes(2, 'big'))
 		return h.hexdigest(3)
 	def getObfuscatedKarma(self):
