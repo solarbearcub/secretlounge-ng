@@ -609,7 +609,7 @@ def cmd_motd(ev, arg):
 
 @takesArgument(optional=True)
 def cmd_sed(ev, arg):
-	if arg.includes("/"):
+	if "/" in arg:
 		parts = arg.split("/")
 		send_answer(ev, core.set_badword(parts[0], parts[1]), True)
 		update_badwords()
