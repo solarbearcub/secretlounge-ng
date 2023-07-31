@@ -152,7 +152,7 @@ format_strs = {
 
 	types.USER_INFO: lambda warnings, cooldown, **_:
 		"<b>id</b>: {id}, <b>username</b>: citizen, <b>rank</b>: {rank_i} ({rank})\n"+
-		"<b>social credit</b>: ( +{positiveKarma} | -{negativeKarma} }\n"+
+		"<b>social credit</b>: ( +{positiveKarma} | -{negativeKarma} )\n"+
 		"<b>warnings</b>: {warnings} " + smiley(warnings)+
 		( " (one warning will be removed on {warnExpiry!t})" if warnings > 0 else "" ) + ", "+
 		"<b>cooldown</b>: "+
