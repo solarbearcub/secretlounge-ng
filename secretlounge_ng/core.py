@@ -61,6 +61,7 @@ def register_tasks(sched):
 	# ID update task
 	before = get_session_id(id_refresh_interval)
 	def reeducation():
+		nonlocal before
 		now = get_session_id(id_refresh_interval)
 		if before != now:
 			_push_system_message(rp.Reply(rp.types.USER_ID_REFRESH))
