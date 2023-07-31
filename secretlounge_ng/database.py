@@ -209,7 +209,7 @@ class JSONDatabase(Database):
 	def _userToDict(user):
 		props = ["id", "username", "realname", "rank", "joined", "left",
 			"lastActive", "cooldownUntil", "blacklistReason", "warnings",
-			"warnExpiry", "karma", "hideKarma", "debugEnabled", "tripcode"]
+			"warnExpiry", "positiveKarma", "negativeKarma", "hideKarma", "debugEnabled", "tripcode"]
 		d = {}
 		for prop in props:
 			value = getattr(user, prop)
@@ -221,7 +221,7 @@ class JSONDatabase(Database):
 	def _userFromDict(d):
 		if d is None: return None
 		props = ["id", "username", "realname", "rank", "blacklistReason",
-			"warnings", "karma", "hideKarma", "debugEnabled"]
+			"warnings", "positiveKarma", "negativeKarma", "hideKarma", "debugEnabled"]
 		props_d = [("tripcode", None)]
 		dateprops = ["joined", "left", "lastActive", "cooldownUntil", "warnExpiry"]
 		user = User()
