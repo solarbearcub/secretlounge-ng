@@ -64,7 +64,8 @@ def register_tasks(sched):
 		now = get_session_id(id_refresh_interval)
 		if before != now:
 			_push_system_message(rp.Reply(rp.types.USER_ID_REFRESH))
-	sched.register(reeducation, hours=id_refresh_interval)
+			before = now
+	sched.register(reeducation, minutes=15)
 	sched.register(task, minutes=15)
 
 def updateUserFromEvent(user, c_user):
