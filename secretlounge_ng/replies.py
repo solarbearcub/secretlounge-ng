@@ -111,10 +111,13 @@ format_strs = {
 	types.DELETION_QUEUED: em("{count} messages matched, deletion was queued."),
 	types.PROMOTED_MOD: em("You've been promoted to moderator, run /modhelp for a list of commands."),
 	types.PROMOTED_ADMIN: em("You've been promoted to admin, run /adminhelp for a list of commands."),
-	types.KARMA_THANK_YOU: em("You just gave this user some sweet karma, awesome!"),
-	types.KARMA_NOTIFICATION:
-		em( "You've just been given sweet karma! (check /info to see your karma"+
-			" or /toggleKarma to turn these notifications off)" ),
+	types.KARMA_THANK_YOU: em("Message review received.\nThat user's social credit has been updated accordingly."),
+	types.KARMA_GOOD_NOTIFICATION:
+		em( "An anonymous tip-off has improved your social credit (check /id to see your social credit"+
+			" or /toggleCredit to turn these notifications off)" ),
+	types.KARMA_BAD_NOTIFICATION:
+		em( "You have been served a citation, your social credit is damaged (check /id to see your social credit"+
+			" or /toggleCredit to turn these notifications off)" ),
 	types.TRIPCODE_INFO: lambda tripcode, **_:
 		"<b>tripcode</b>: " + ("<code>{tripcode!x}</code>" if tripcode is not None else "unset"),
 	types.TRIPCODE_SET: em("Tripcode set. It will appear as: ") + "<b>{tripname!x}</b> <code>{tripcode!x}</code>",
@@ -130,8 +133,8 @@ format_strs = {
 	types.ERR_BLACKLISTED: lambda reason, contact, **_:
 		em( "You've been blacklisted" + (reason and " for {reason!x}" or "") )+
 		( em("\ncontact:") + " {contact}" if contact else "" ),
-	types.ERR_ALREADY_UPVOTED: em("You have already upvoted this message."),
-	types.ERR_UPVOTE_OWN_MESSAGE: em("You can't upvote your own message."),
+	types.ERR_ALREADY_VOTED: em("You have already sent in a tip-off for this message."),
+	types.ERR_VOTE_OWN_MESSAGE: em("You can't act informant on your own message."),
 	types.ERR_SPAMMY: em("Your message has not been sent. Avoid sending messages too fast, try again later."),
 	types.ERR_SPAMMY_SIGN: em("Your message has not been sent. Avoid using /sign too often, try again later."),
 	types.ERR_SIGN_PRIVACY: em("Your account privacy settings prevent usage of the sign feature. Enable linked forwards first."),
@@ -147,15 +150,15 @@ format_strs = {
 	types.NOTIF_REMOVE_BADWORD: lambda filtername, badword, **_: em("{filtername!x} successfully removed:\n'{badword!x}' is now unfiltered"),
 
 	types.USER_INFO: lambda warnings, cooldown, **_:
-		"<b>id</b>: {id}, <b>username</b>: anonymous, <b>rank</b>: {rank_i} ({rank})\n"+
-		"<b>karma</b>: {karma}\n"+
+		"<b>id</b>: {id}, <b>username</b>: citizen, <b>rank</b>: {rank_i} ({rank})\n"+
+		"<b>social credit</b>: ( +{positiveKarma} | -{negativeKarma} }\n"+
 		"<b>warnings</b>: {warnings} " + smiley(warnings)+
 		( " (one warning will be removed on {warnExpiry!t})" if warnings > 0 else "" ) + ", "+
 		"<b>cooldown</b>: "+
 		( cooldown and "yes, until {cooldown!t}" or "no" ),
 	types.USER_INFO_MOD: lambda cooldown, **_:
-		"<b>id</b>: {id}, <b>username</b>: anonymous, <b>rank</b>: n/a, "+
-		"<b>karma bracket</b>: {karma}\n"+
+		"<b>id</b>: {id}, <b>username</b>: citizen, <b>rank</b>: n/a, "+
+		"<b>combined social credit</b>: {karma}\n"+
 		"<b>cooldown</b>: "+
 		( cooldown and "yes, until {cooldown!t}" or "no" ),
 	types.USER_ID_REFRESH: em("All users have been sent to re-education.\nIdentifies have been refreshed."),
@@ -166,7 +169,7 @@ format_strs = {
 		"<b>{active}</b> <i>active</i>, {inactive} <i>inactive and</i> "+
 		"{blacklisted} <i>blacklisted users</i> (<i>total</i>: {total})",
 
-	types.PROGRAM_VERSION: "secretlounge-ng v{version} ~ https://github.com/secretlounge/secretlounge-ng",
+	types.PROGRAM_VERSION: "commielounge-ng v{version} ~ https://github.com/solarbearcub/secretlounge-ng",
 	types.HELP_MODERATOR:
 		"<i>Moderators can use the following commands</i>:\n"+
 		"  /modhelp - show this text\n"+

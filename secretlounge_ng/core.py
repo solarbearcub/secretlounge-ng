@@ -258,7 +258,8 @@ def get_info(user):
 		"username": user.getFormattedName(),
 		"rank_i": user.rank,
 		"rank": RANKS.reverse[user.rank],
-		"karma": user.karma,
+		"positiveKarma": user.positiveKarma,
+		"negativeKarma": user.negativeKarma,
 		"warnings": user.warnings,
 		"warnExpiry": user.warnExpiry,
 		"cooldown": user.cooldownUntil if user.isInCooldown() else None,
@@ -406,7 +407,7 @@ def warn_user(user, msid, delete=False):
 	if not cm.warned:
 		with db.modifyUser(id=cm.user_id) as user2:
 			d = user2.addWarning()
-			user2.karma -= KARMA_WARN_PENALTY
+			user2.negativeKarma += KARMA_WARN_PENALTY
 		_push_system_message(
 			rp.Reply(rp.types.GIVEN_COOLDOWN, duration=d, deleted=delete),
 			who=user2, reply_to=msid)
@@ -504,15 +505,33 @@ def give_karma(user, msid):
 		return rp.Reply(rp.types.ERR_NOT_IN_CACHE)
 
 	if cm.hasUpvoted(user):
-		return rp.Reply(rp.types.ERR_ALREADY_UPVOTED)
+		return rp.Reply(rp.types.ERR_ALREADY_VOTED)
 	elif user.id == cm.user_id:
-		return rp.Reply(rp.types.ERR_UPVOTE_OWN_MESSAGE)
+		return rp.Reply(rp.types.ERR_VOTE_OWN_MESSAGE)
 	cm.addUpvote(user)
 	user2 = db.getUser(id=cm.user_id)
 	with db.modifyUser(id=cm.user_id) as user2:
-		user2.karma += KARMA_PLUS_ONE
+		user2.positiveKarma += KARMA_PLUS_ONE
 	if not user2.hideKarma:
-		_push_system_message(rp.Reply(rp.types.KARMA_NOTIFICATION), who=user2, reply_to=msid)
+		_push_system_message(rp.Reply(rp.types.KARMA_GOOD_NOTIFICATION), who=user2, reply_to=msid)
+	return rp.Reply(rp.types.KARMA_THANK_YOU)
+
+@requireUser
+def remove_karma(user, msid):
+	cm = ch.getMessage(msid)
+	if cm is None or cm.user_id is None:
+		return rp.Reply(rp.types.ERR_NOT_IN_CACHE)
+
+	if cm.hasDownvoted(user):
+		return rp.Reply(rp.types.ERR_ALREADY_VOTED)
+	elif user.id == cm.user_id:
+		return rp.Reply(rp.types.ERR_VOTE_OWN_MESSAGE)
+	cm.addDownvote(user)
+	user2 = db.getUser(id=cm.user_id)
+	with db.modifyUser(id=cm.user_id) as user2:
+		user2.negativeKarma += KARMA_PLUS_ONE
+	if not user2.hideKarma:
+		_push_system_message(rp.Reply(rp.types.KARMA_BAD_NOTIFICATION), who=user2, reply_to=msid)
 	return rp.Reply(rp.types.KARMA_THANK_YOU)
 
 

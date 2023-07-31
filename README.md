@@ -44,8 +44,8 @@ motd - Show the welcome message
 version - Get version & source code of this bot
 modhelp - Show commands available to moderators
 adminhelp - Show commands available to admins
-toggledebug - Toggle debug mode (sends back all messages to you)
-togglekarma - Toggle karma notifications
+toggleDebug - Toggle debug mode (sends back all messages to you)
+toggleCredit - Toggle karma notifications
 tripcode - Show or set the tripcode for your messages
 ```
 

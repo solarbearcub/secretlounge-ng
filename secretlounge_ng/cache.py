@@ -7,22 +7,28 @@ from typing import Optional, Sequence, Set
 from .globals import *
 
 class CachedMessage():
-	__slots__ = ('user_id', 'time', 'warned', 'upvoted')
+	__slots__ = ('user_id', 'time', 'warned', 'upvoted', 'downvoted')
 	user_id: Optional[int]
 	time: datetime
 	warned: bool
 	upvoted: Set[int]
+	downvoted: Set[int]
 	def __init__(self, user_id=None):
 		self.user_id = user_id # who has sent this message
 		self.time = datetime.now() # when was this message seen?
 		self.warned = False # was the user warned for this message?
 		self.upvoted = set() # set of users that have given this message karma
+		self.downvoted = set() # set of users that have given this message
 	def isExpired(self):
 		return datetime.now() >= self.time + timedelta(hours=6)
 	def hasUpvoted(self, user):
 		return user.id in self.upvoted
 	def addUpvote(self, user):
 		self.upvoted.add(user.id)
+	def hasDownvoted(self, user):
+		return user.id in self.downvoted
+	def addDownvote(self, user):
+		self.downvoted.add(user.id)
 
 class Cache():
 	def __init__(self):

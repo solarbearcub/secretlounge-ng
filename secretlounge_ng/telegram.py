@@ -74,7 +74,7 @@ def init(config, _db, _ch):
 	types += ["animation", "audio", "photo", "sticker", "video", "video_note", "voice"]
 
 	cmds = [
-		"start", "stop", "users", "id", "motd", "toggledebug", "togglekarma",
+		"start", "stop", "users", "id", "motd", "toggledebug", "togglecredit",
 		"version", "source", "modhelp", "adminhelp", "modsay", "adminsay", "mod",
 		"admin", "warn", "delete", "remove", "uncooldown", "blacklist", "s", "sign",
 		"sed", "rsed", "tripcode", "t", "tsign", "cleanup"
@@ -633,7 +633,7 @@ def cmd_rsed(ev, arg):
 	update_badwords()
 
 cmd_toggledebug = wrap_core(core.toggle_debug)
-cmd_togglekarma = wrap_core(core.toggle_karma)
+cmd_togglecredit = wrap_core(core.toggle_karma)
 
 @takesArgument(optional=True)
 def cmd_tripcode(ev, arg):
@@ -735,6 +735,15 @@ def plusone(ev):
 		return send_answer(ev, rp.Reply(rp.types.ERR_NOT_IN_CACHE), True)
 	return send_answer(ev, core.give_karma(c_user, reply_msid), True)
 
+def subone(ev):
+	c_user = UserContainer(ev.from_user)
+	if ev.reply_to_message is None:
+		return send_answer(ev, rp.Reply(rp.types.ERR_NO_REPLY), True)
+
+	reply_msid = ch.lookupMapping(ev.from_user.id, data=ev.reply_to_message.message_id)
+	if reply_msid is None:
+		return send_answer(ev, rp.Reply(rp.types.ERR_NOT_IN_CACHE), True)
+	return send_answer(ev, core.remove_karma(c_user, reply_msid), True)
 
 def relay(ev):
 	# handle commands and karma giving
@@ -746,6 +755,8 @@ def relay(ev):
 			return
 		elif ev.text.strip() == "+1":
 			return plusone(ev)
+		elif ev.text.strip() == "-1":
+			return subone(ev)
 	# manually handle signing / tripcodes for media since captions don't count for commands
 	if not is_forward(ev) and ev.content_type in CAPTIONABLE_TYPES and (ev.caption or "").startswith("/"):
 		c, arg = split_command(ev.caption)

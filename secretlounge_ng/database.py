@@ -4,7 +4,6 @@ import json
 import sqlite3
 import hashlib
 from datetime import date, datetime, timedelta, timezone
-from random import randint
 from threading import RLock
 from typing import Optional, Generator
 
@@ -20,8 +19,8 @@ class SystemConfig():
 
 USER_PROPS = (
 	"id", "username", "realname", "rank", "joined", "left", "lastActive",
-	"cooldownUntil", "blacklistReason", "warnings", "warnExpiry", "karma",
-	"hideKarma", "debugEnabled", "tripcode"
+	"cooldownUntil", "blacklistReason", "warnings", "warnExpiry", "positiveKarma",
+	"negativeKarma", "hideKarma", "debugEnabled", "tripcode"
 )
 
 class WordFilter():
@@ -45,7 +44,8 @@ class User():
 	blacklistReason: Optional[str]
 	warnings: int
 	warnExpiry: Optional[datetime]
-	karma: int
+	positiveKarma: int
+	negativeKarma: int
 	hideKarma: bool
 	debugEnabled: bool
 	tripcode: Optional[str]
@@ -63,7 +63,8 @@ class User():
 		self.joined = datetime.now()
 		self.lastActive = self.joined
 		self.warnings = 0
-		self.karma = 0
+		self.positiveKarma = 0
+		self.negativeKarma = 0
 		self.hideKarma = False
 		self.debugEnabled = False
 	def isJoined(self):
@@ -79,10 +80,11 @@ class User():
 		h = hashlib.shake_256(bytes(digest, 'utf-8'))
 		return h.hexdigest(3)
 	def getObfuscatedKarma(self):
-		if abs(self.karma) >= 50:
-			return max(-50, min(self.karma, 50))
-		if abs(self.karma) >= 10:
-			return max(-10, min(self.karma, 10))
+		karma = self.positiveKarma - self.negativeKarma
+		if abs(karma) >= 50:
+			return max(-50, min(karma, 50))
+		if abs(karma) >= 10:
+			return max(-10, min(karma, 10))
 		return 0
 	def getFormattedName(self):
 		if self.username is not None:
@@ -356,7 +358,8 @@ class SQLiteDatabase(Database):
 					`blacklistReason` TEXT,
 					`warnings` INTEGER NOT NULL,
 					`warnExpiry` TIMESTAMP,
-					`karma` INTEGER NOT NULL,
+					`positiveKarma` INTEGER NOT NULL,
+		   		`negativeKarma` INTEGER NOT NULL,
 					`hideKarma` TINYINT NOT NULL,
 					`debugEnabled` TINYINT NOT NULL,
 					`tripcode` TEXT,
