@@ -48,7 +48,7 @@ def main(configpath, importpath):
 		u.warnings = j.get("warnings", 0)
 		if u.warnings > 0:
 			u.warnExpiry = safe_time(j["warnUpdated"] // 1000) + timedelta(hours=WARN_EXPIRE_HOURS)
-		u.karma = j.get("karma", 0)
+		u.positiveKarma = j.get("karma", 0)
 		u.hideKarma = j.get("hideKarma", False)
 		u.debugEnabled = j.get("debug", False)
 
