@@ -781,7 +781,7 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False):
 
 	user = db.getUser(id=ev.from_user.id)
 
-	if ev.content_type is "sticker" and user.rank < RANKS.citizen:
+	if ev.content_type == "sticker" and user.rank < RANKS.citizen:
 		return send_answer(ev, rp.Reply(rp.types.ERR_MEDIA_PERMISSION, kind="stickers"))
 	if user.rank < RANKS.partisan:
 		if ev.content_type in ("photo", "animation", "document", "video", "video_note"):
