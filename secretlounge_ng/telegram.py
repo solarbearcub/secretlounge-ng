@@ -781,6 +781,14 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False):
 
 	user = db.getUser(id=ev.from_user.id)
 
+	if ev.content_type is "sticker" and user.rank < RANKS.citizen:
+		return send_answer(ev, rp.Reply(rp.types.ERR_MEDIA_PERMISSION, kind="stickers"))
+	if user.rank < RANKS.partisan:
+		if ev.content_type in ("photo", "animation", "document", "video", "video_note"):
+			return send_answer(ev, rp.Reply(rp.types.ERR_MEDIA_PERMISSION, kind="media"))
+		elif is_forward(ev):
+			return send_answer(ev, rp.Reply(rp.types.ERR_MEDIA_PERMISSION, kind="forwards"))
+
 	# let them know their ID if they've not sent any messages during the current session
 	if id_visible and not ch.userInCache(user.id):
 		send_answer(ev, rp.Reply(rp.types.USER_NEW_ID, id=user.getObfuscatedId(id_refresh_interval)))

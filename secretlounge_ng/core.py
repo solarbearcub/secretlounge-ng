@@ -128,6 +128,19 @@ def requireRank(need_rank):
 		return wrapper
 	return f
 
+def enactKarmaRankReward(user):
+	rank = user.rank
+	if user.positiveKarma > KARMA_CITIZEN_MIN and user.rank < RANKS.citizen:
+		rank = RANKS.citizen
+		_push_system_message(rp.Reply(rp.types.PROMOTED_CITIZEN), who=user)
+	elif user.positiveKarma > KARMA_PARTISAN_MIN and user.rank < RANKS.partisan:
+		rank = RANKS.partisan
+		_push_system_message(rp.Reply(rp.types.PROMOTED_PARTISAN), who=user)
+	else:
+		return
+	with db.modifyUser(id=user.id) as user:
+		user.rank = rank
+	
 ###
 
 # RAM cache for spam scores
@@ -325,7 +338,7 @@ def toggle_karma(user):
 	with db.modifyUser(id=user.id) as user:
 		user.hideKarma = not user.hideKarma
 		new = user.hideKarma
-	return rp.Reply(rp.types.BOOLEAN_CONFIG, description="Karma notifications", enabled=not new)
+	return rp.Reply(rp.types.BOOLEAN_CONFIG, description="Social credit notifications", enabled=not new)
 
 @requireUser
 def get_tripcode(user):
@@ -514,6 +527,7 @@ def give_karma(user, msid):
 		user2.positiveKarma += KARMA_PLUS_ONE
 	if not user2.hideKarma:
 		_push_system_message(rp.Reply(rp.types.KARMA_GOOD_NOTIFICATION), who=user2, reply_to=msid)
+	enactKarmaRankReward(user2)
 	return rp.Reply(rp.types.KARMA_THANK_YOU)
 
 @requireUser
@@ -532,6 +546,7 @@ def remove_karma(user, msid):
 		user2.negativeKarma += KARMA_PLUS_ONE
 	if not user2.hideKarma:
 		_push_system_message(rp.Reply(rp.types.KARMA_BAD_NOTIFICATION), who=user2, reply_to=msid)
+	enactKarmaRankReward(user2)
 	return rp.Reply(rp.types.KARMA_THANK_YOU)
 
 

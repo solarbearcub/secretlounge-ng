@@ -50,8 +50,10 @@ VERSION = "1.8"
 RANKS = Enum({
 	"admin": 100,
 	"mod": 10,
-	"user": 0,
-	"banned": -10
+	"partisan": 5,
+	"citizen": 1,
+	"vagrant": 0,
+	"exile": -10
 })
 
 # Cooldown related
@@ -63,6 +65,8 @@ WARN_EXPIRE_HOURS = 7 * 24
 # Karma related
 KARMA_PLUS_ONE = 1
 KARMA_WARN_PENALTY = 10
+KARMA_CITIZEN_MIN = 30
+KARMA_PARTISAN_MIN = 100
 
 # Spam limits
 SPAM_LIMIT = 3

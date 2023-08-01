@@ -37,6 +37,8 @@ types = NumericEnum([
 	"GIVEN_COOLDOWN",
 	"MESSAGE_DELETED",
 	"DELETION_QUEUED",
+	"PROMOTED_CITIZEN",
+	"PROMOTED_PARTISAN",
 	"PROMOTED_MOD",
 	"PROMOTED_ADMIN",
 	"KARMA_THANK_YOU",
@@ -63,6 +65,7 @@ types = NumericEnum([
 	"ERR_NO_TRIPCODE",
 	"ERR_MEDIA_LIMIT",
 	"ERR_NO_MEDIA_ALLOWED",
+	"ERR_MEDIA_PERMISSION",
 
 	"NOTIF_BADWORD_VALUE",
 	"NOTIF_SET_BADWORD",
@@ -110,14 +113,16 @@ format_strs = {
 		em( "Your message has been deleted. No cooldown has been "
 			"given this time, but refrain from posting it again." ),
 	types.DELETION_QUEUED: em("{count} messages matched, deletion was queued."),
+	types.PROMOTED_CITIZEN: em("You have been promoted to citizen.\nYou may now send stickers."),
+	types.PROMOTED_PARTISAN: em("You have been promoted to partisan.\nYou may now send media."),
 	types.PROMOTED_MOD: em("You've been promoted to moderator, run /modhelp for a list of commands."),
 	types.PROMOTED_ADMIN: em("You've been promoted to admin, run /adminhelp for a list of commands."),
 	types.KARMA_THANK_YOU: em("Message review received.\nThat user's social credit has been updated accordingly."),
 	types.KARMA_GOOD_NOTIFICATION:
-		em( "An anonymous tip-off has improved your social credit (check /id to see your social credit"+
+		em( "A peer liked  this, your social credit has increased (check /id to see your social credit"+
 			" or /toggleCredit to turn these notifications off)" ),
 	types.KARMA_BAD_NOTIFICATION:
-		em( "You have been served a citation, your social credit is damaged (check /id to see your social credit"+
+		em( "A peer disliked this, your social credit has decreased (check /id to see your social credit"+
 			" or /toggleCredit to turn these notifications off)" ),
 	types.TRIPCODE_INFO: lambda tripcode, **_:
 		"<b>tripcode</b>: " + ("<code>{tripcode!x}</code>" if tripcode is not None else "unset"),
@@ -145,6 +150,7 @@ format_strs = {
 	types.ERR_NO_TRIPCODE: em("You don't have a tripcode set."),
 	types.ERR_MEDIA_LIMIT: em("You can't send media or forward messages at this time, try again later."),
 	types.ERR_NO_MEDIA_ALLOWED: em("You can't send media or forward messages to this bot."),
+	types.ERR_MEDIA_PERMISSION:lambda kind, **_: em("You don't have permission to send {kind}."),
 
 	types.NOTIF_BADWORD_VALUE: lambda filtername, badword, replacement, **_: em("{filtername!x} filters:\n'{badword!x}' will be replaced by '{replacement!x}'"),
 	types.NOTIF_SET_BADWORD: lambda filtername, badword, replacement, **_: em("{filtername!x} successfully set:\n'{badword!x}' will be replaced by '{replacement!x}'"),
@@ -152,7 +158,7 @@ format_strs = {
 
 	types.USER_INFO: lambda warnings, cooldown, **_:
 		"<b>id</b>: {id}, <b>username</b>: citizen, <b>rank</b>: {rank_i} ({rank})\n"+
-		"<b>social credit</b>: ( +{positiveKarma} | -{negativeKarma} )\n"+
+		"<b>social credit</b>: +{positiveKarma} | -{negativeKarma} )\n"+
 		"<b>warnings</b>: {warnings} " + smiley(warnings)+
 		( " (one warning will be removed on {warnExpiry!t})" if warnings > 0 else "" ) + ", "+
 		"<b>cooldown</b>: "+

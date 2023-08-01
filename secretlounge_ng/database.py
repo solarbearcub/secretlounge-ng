@@ -59,7 +59,7 @@ class User():
 	def __str__(self):
 		return "<User id=%d aka %r>" % (self.id, self.getFormattedName())
 	def defaults(self):
-		self.rank = RANKS.user
+		self.rank = RANKS.vagrant
 		self.joined = datetime.now()
 		self.lastActive = self.joined
 		self.warnings = 0
@@ -78,7 +78,7 @@ class User():
 		interval = 1 + int(datetime.now().hour/id_refresh_interval) * modsalt
 		digest = (day*interval*self.id).__str__()
 		h = hashlib.shake_256(bytes(digest, 'utf-8'))
-		return h.hexdigest(3)
+		return h.hexdigest(2).upper()
 	def getObfuscatedKarma(self):
 		karma = self.positiveKarma - self.negativeKarma
 		if abs(karma) >= 50:
@@ -101,7 +101,7 @@ class User():
 		self.left = datetime.now() if v else None
 	def setBlacklisted(self, reason):
 		self.setLeft()
-		self.rank = RANKS.banned
+		self.rank = RANKS.exile
 		self.blacklistReason = reason
 	def addWarning(self):
 		if self.warnings < len(COOLDOWN_TIME_BEGIN):
