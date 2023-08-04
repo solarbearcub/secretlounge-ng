@@ -17,16 +17,14 @@ class CachedMessage():
 		self.user_id = user_id # who has sent this message
 		self.time = datetime.now() # when was this message seen?
 		self.warned = False # was the user warned for this message?
-		self.upvoted = set() # set of users that have given this message karma
-		self.downvoted = set() # set of users that have given this message
+		self.upvoted = set() # set of users that have given this message an upvote
+		self.downvoted = set() # set of users that have given this message a downvote
 	def isExpired(self):
 		return datetime.now() >= self.time + timedelta(hours=6)
-	def hasUpvoted(self, user):
-		return user.id in self.upvoted
+	def hasVoted(self, user):
+		return user.id in self.upvoted or user.id in self.downvoted
 	def addUpvote(self, user):
 		self.upvoted.add(user.id)
-	def hasDownvoted(self, user):
-		return user.id in self.downvoted
 	def addDownvote(self, user):
 		self.downvoted.add(user.id)
 
@@ -62,7 +60,14 @@ class Cache():
 			for msid, cm in self.msgs.items():
 				functor(msid, cm)
 	def userInCache(self, uid: int):
-		return bool(self.idmap.get(uid))
+		user_was_active = False
+		def f(msid: int, cm: CachedMessage):
+			nonlocal user_was_active
+			if cm.user_id == uid:
+				user_was_active = True
+				return
+		self.iterateMessages(f)
+		return user_was_active
 	def saveMapping(self, uid: int, msid: int, data):
 		with self.lock:
 			self._saveMapping(self.idmap, uid, msid, data)

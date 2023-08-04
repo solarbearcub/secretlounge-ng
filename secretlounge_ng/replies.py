@@ -139,8 +139,8 @@ format_strs = {
 	types.ERR_BLACKLISTED: lambda reason, contact, **_:
 		em( "You've been blacklisted" + (reason and " for {reason!x}" or "") )+
 		( em("\ncontact:") + " {contact}" if contact else "" ),
-	types.ERR_ALREADY_VOTED: em("You have already sent in a tip-off for this message."),
-	types.ERR_VOTE_OWN_MESSAGE: em("You can't act informant on your own message."),
+	types.ERR_ALREADY_VOTED: em("You have already reviewed this message."),
+	types.ERR_VOTE_OWN_MESSAGE: em("You can't inform on your own message."),
 	types.ERR_SPAMMY: em("Your message has not been sent. Avoid sending messages too fast, try again later."),
 	types.ERR_SPAMMY_SIGN: em("Your message has not been sent. Avoid using /sign too often, try again later."),
 	types.ERR_SIGN_PRIVACY: em("Your account privacy settings prevent usage of the sign feature. Enable linked forwards first."),

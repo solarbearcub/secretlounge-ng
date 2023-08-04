@@ -517,7 +517,7 @@ def give_karma(user, msid):
 	if cm is None or cm.user_id is None:
 		return rp.Reply(rp.types.ERR_NOT_IN_CACHE)
 
-	if cm.hasUpvoted(user):
+	if cm.hasVoted(user):
 		return rp.Reply(rp.types.ERR_ALREADY_VOTED)
 	elif user.id == cm.user_id:
 		return rp.Reply(rp.types.ERR_VOTE_OWN_MESSAGE)
@@ -536,7 +536,7 @@ def remove_karma(user, msid):
 	if cm is None or cm.user_id is None:
 		return rp.Reply(rp.types.ERR_NOT_IN_CACHE)
 
-	if cm.hasDownvoted(user):
+	if cm.hasVoted(user):
 		return rp.Reply(rp.types.ERR_ALREADY_VOTED)
 	elif user.id == cm.user_id:
 		return rp.Reply(rp.types.ERR_VOTE_OWN_MESSAGE)
