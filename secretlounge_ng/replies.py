@@ -163,7 +163,7 @@ format_strs = {
 		( " (one warning will be removed on {warnExpiry!t})" if warnings > 0 else "" ) + ", "+
 		"<b>cooldown</b>: "+
 		( cooldown and "yes, until {cooldown!t}" or "no" ) + "\n"+
-		"<b>last active</b>: {lastActive!t}"
+		"<b>last active</b>: {lastActive!t}",
 	types.USER_INFO_MOD: lambda cooldown, **_:
 		"<b>id</b>: {id}, <b>username</b>: citizen, <b>rank</b>: n/a, "+
 		"<b>combined social credit</b>: {karma}\n"+
