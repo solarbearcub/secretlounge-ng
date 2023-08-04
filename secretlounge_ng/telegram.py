@@ -789,9 +789,13 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False):
 		elif is_forward(ev):
 			return send_answer(ev, rp.Reply(rp.types.ERR_MEDIA_PERMISSION, kind="forwards"))
 
-	# let them know their ID if they've not sent any messages during the current session
-	if id_visible and not ch.userInCache(user.id):
+	# let them know their ID if:
+	# 1. IDs are visible
+	# 2. They've not sent any messages during the current session
+	if id_visible and get_past_session_id(user.lastActive, id_refresh_interval) != get_session_id(id_refresh_interval):
 		send_answer(ev, rp.Reply(rp.types.USER_NEW_ID, id=user.getObfuscatedId(id_refresh_interval)))
+
+	user.lastActive = datetime.now().replace(minute=0, second=0, microsecond=0) # Hourly precision is fine
 
 	# for signed msgs: check user's forward privacy status first
 	# FIXME? this is a possible bottleneck

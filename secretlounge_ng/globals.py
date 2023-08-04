@@ -43,6 +43,11 @@ def get_session_id(id_refresh_interval):
 	interval = 1 + int(datetime.now().hour/id_refresh_interval)
 	return day * interval
 
+def get_past_session_id(old_date: datetime, id_refresh_interval):
+	day = old_date.date().toordinal()
+	interval = 1 + int(old_date.hour/id_refresh_interval)
+	return day * interval
+
 # Program version
 VERSION = "1.8"
 
