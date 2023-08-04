@@ -276,6 +276,7 @@ def get_info(user):
 		"warnings": user.warnings,
 		"warnExpiry": user.warnExpiry,
 		"cooldown": user.cooldownUntil if user.isInCooldown() else None,
+		"lastActive": user.lastActive
 	}
 	return rp.Reply(rp.types.USER_INFO, **params)
 
