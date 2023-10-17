@@ -364,6 +364,7 @@ def resend_message(chat_id, ev, reply_to=None, force_caption: Optional[Formatted
 				kwargs["parse_mode"] = "HTML"
 		else:
 			kwargs["caption"] = ev.caption
+		kwargs["has_spoiler"] = ev.has_media_spoiler
 
 	# re-send message based on content type
 	if ev.content_type == "text":
@@ -721,6 +722,8 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False):
 		tchat = bot.get_chat(user.id)
 		if tchat.has_private_forwards:
 			return send_answer(ev, rp.Reply(rp.types.ERR_SIGN_PRIVACY))
+	
+	is_spoilered = hasattr(ev, "has_spoiler") and ev.has_spoiler
 
 	# apply text formatting to text or caption (if media)
 	ev_tosend = ev
@@ -742,7 +745,7 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False):
 		else:
 			force_caption = fmt
 
-	if hasattr(ev, "spoiler") and ev.spoiler:
+	if is_spoilered:
 		ev_tosend.spoiler = True
 
 	# find out which message is being replied to
@@ -758,7 +761,7 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False):
 		if not user2.isJoined():
 			continue
 		if user2 == user:
-			if hasattr(ev, "spoiler") and ev.spoiler:
+			if is_spoilered:
 				send_answer(ev, rp.Reply(rp.types.MESSAGE_SPOILERED), True)
 			if not user.debugEnabled:
 				ch.saveMapping(user2.id, msid, ev.message_id)
