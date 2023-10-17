@@ -723,7 +723,7 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False):
 		if tchat.has_private_forwards:
 			return send_answer(ev, rp.Reply(rp.types.ERR_SIGN_PRIVACY))
 	
-	is_spoilered = hasattr(ev, "has_spoiler") and ev.has_spoiler
+	is_spoilered = hasattr(ev, "has_media_spoiler") and ev.has_media_spoiler
 
 	# apply text formatting to text or caption (if media)
 	ev_tosend = ev
@@ -746,7 +746,7 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False):
 			force_caption = fmt
 
 	if is_spoilered:
-		ev_tosend.spoiler = True
+		ev_tosend.has_media_spoiler = True
 
 	# find out which message is being replied to
 	reply_msid = None
