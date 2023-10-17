@@ -742,6 +742,9 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False):
 		else:
 			force_caption = fmt
 
+	if hasattr(ev, "spoiler") and ev.spoiler:
+		ev_tosend.spoiler = True
+
 	# find out which message is being replied to
 	reply_msid = None
 	if ev.reply_to_message is not None:
@@ -754,9 +757,12 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False):
 	for user2 in db.iterateUsers():
 		if not user2.isJoined():
 			continue
-		if user2 == user and not user.debugEnabled:
-			ch.saveMapping(user2.id, msid, ev.message_id)
-			continue
+		if user2 == user:
+			if hasattr(ev, "spoiler") and ev.spoiler:
+				send_answer(ev, rp.Reply(rp.types.MESSAGE_SPOILERED), True)
+			if not user.debugEnabled:
+				ch.saveMapping(user2.id, msid, ev.message_id)
+				continue
 
 		send_to_single(ev_tosend, msid, user2,
 			reply_msid=reply_msid, force_caption=force_caption)

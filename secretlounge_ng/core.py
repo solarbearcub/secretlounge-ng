@@ -16,18 +16,20 @@ sign_last_used = {} # uid -> datetime
 
 blacklist_contact = None
 enable_signing = None
+enable_tripcode = None
 allow_remove_command = None
 media_limit_period = None
 sign_interval = None
 
 def init(config, _db, _ch):
-	global db, ch, spam_scores, blacklist_contact, enable_signing, allow_remove_command, media_limit_period, sign_interval
+	global db, ch, spam_scores, blacklist_contact, enable_signing, enable_tripcode, allow_remove_command, media_limit_period, sign_interval
 	db = _db
 	ch = _ch
 	spam_scores = ScoreKeeper()
 
 	blacklist_contact = config.get("blacklist_contact", "")
 	enable_signing = config["enable_signing"]
+	enable_tripcode = config["enable_tripcode"]
 	allow_remove_command = config["allow_remove_command"]
 	if "media_limit_period" in config.keys():
 		media_limit_period = timedelta(hours=int(config["media_limit_period"]))
@@ -322,14 +324,14 @@ def toggle_requests(user):
 
 @requireUser
 def get_tripcode(user):
-	if not enable_signing:
+	if not enable_tripcode:
 		return rp.Reply(rp.types.ERR_COMMAND_DISABLED)
 
 	return rp.Reply(rp.types.TRIPCODE_INFO, tripcode=user.tripcode)
 
 @requireUser
 def set_tripcode(user, text):
-	if not enable_signing:
+	if not enable_tripcode:
 		return rp.Reply(rp.types.ERR_COMMAND_DISABLED)
 
 	if not 0 < text.find("#") < len(text) - 1:
@@ -512,7 +514,9 @@ def prepare_user_message(user: User, msg_score, *, is_media=False, signed=False,
 	# prerequisites
 	if user.isInCooldown():
 		return rp.Reply(rp.types.ERR_COOLDOWN, until=user.cooldownUntil)
-	if (signed or tripcode) and not enable_signing:
+	if (signed) and not enable_signing:
+		return rp.Reply(rp.types.ERR_COMMAND_DISABLED)
+	if (tripcode) and not enable_tripcode:
 		return rp.Reply(rp.types.ERR_COMMAND_DISABLED)
 	if tripcode and user.tripcode is None:
 		return rp.Reply(rp.types.ERR_NO_TRIPCODE)

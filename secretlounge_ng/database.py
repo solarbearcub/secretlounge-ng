@@ -295,7 +295,8 @@ class SQLiteDatabase(Database):
 	def _userFromRow(r):
 		user = User()
 		for prop in r.keys():
-			setattr(user, prop, r[prop])
+			if hasattr(user, prop):
+				setattr(user, prop, r[prop])
 		return user
 	def _ensure_schema(self):
 		def row_exists(table, name):

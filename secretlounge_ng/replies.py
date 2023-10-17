@@ -45,6 +45,7 @@ types = NumericEnum([
 	"DM_REQUEST_ACKNOWLEDGEMENT",
 	"TRIPCODE_INFO",
 	"TRIPCODE_SET",
+	"MESSAGE_SPOILERED",
 
 	"ERR_COMMAND_DISABLED",
 	"ERR_NO_REPLY",
@@ -111,13 +112,14 @@ format_strs = {
 	types.KARMA_NOTIFICATION:
 		em( "You've just been fed! (check /info to see your karma"+
 			" or /toggleKarma to turn these notifications off)" ),
-	types.DM_REQUEST_NOTIFICATION: lambda id, username, **_: ("<a href=\"tg://user?id={id!x}\">{username!x}</a>")+
+	types.DM_REQUEST_NOTIFICATION: lambda id, username, **_: ("<a href=\"tg://user?id={id}\">{username!x}</a>")+
 			em(" has requested contact in response to this message."+ 
 			"\nRun /toggleRequests to turn these notifications off." ),
 	types.DM_REQUEST_ACKNOWLEDGEMENT: em("Your username has been forwarded to this message's author."),
 	types.TRIPCODE_INFO: lambda tripcode, **_:
 		"<b>tripcode</b>: " + ("<code>{tripcode!x}</code>" if tripcode is not None else "unset"),
 	types.TRIPCODE_SET: em("Tripcode set. It will appear as: ") + "<b>{tripname!x}</b> <code>{tripcode!x}</code>",
+	types.MESSAGE_SPOILERED: em("Thank you for your consideration. Your last message was spoilered."),
 
 	types.ERR_COMMAND_DISABLED: em("This command has been disabled."),
 	types.ERR_NO_REPLY: em("You need to reply to a message to use this command."),
