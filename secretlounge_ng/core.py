@@ -65,6 +65,7 @@ def register_tasks(sched):
 def updateUserFromEvent(user, c_user):
 	user.username = c_user.username
 	user.realname = c_user.realname
+	print((datetime.now() - user.lastActive))
 	hours_since_last_active = (datetime.now() - user.lastActive).total_seconds() * 3600
 	if hours_since_last_active > id_refresh_interval:
 		_push_system_message(rp.Reply(rp.types.USER_NEW_ID, id=user.getObfuscatedId(id_refresh_interval)), who=user)
