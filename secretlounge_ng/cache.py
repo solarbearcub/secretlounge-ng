@@ -60,7 +60,7 @@ class Cache():
 			if uid in self.idmap.keys():
 				if len(self.idmap[uid]) > 0:
 					return true
-			return false
+			return False
 	def saveMapping(self, uid: int, msid: int, data):
 		with self.lock:
 			self._saveMapping(self.idmap, uid, msid, data)
