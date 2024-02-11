@@ -41,8 +41,11 @@ types = NumericEnum([
 	"PROMOTED_ADMIN",
 	"KARMA_THANK_YOU",
 	"KARMA_NOTIFICATION",
+	"DM_REQUEST_NOTIFICATION",
+	"DM_REQUEST_ACKNOWLEDGEMENT",
 	"TRIPCODE_INFO",
 	"TRIPCODE_SET",
+	"MESSAGE_SPOILERED",
 
 	"ERR_COMMAND_DISABLED",
 	"ERR_NO_REPLY",
@@ -55,6 +58,7 @@ types = NumericEnum([
 	"ERR_BLACKLISTED",
 	"ERR_ALREADY_UPVOTED",
 	"ERR_UPVOTE_OWN_MESSAGE",
+	"ERR_DM_REQUEST_OWN_MESSAGE",
 	"ERR_SPAMMY",
 	"ERR_SPAMMY_SIGN",
 	"ERR_SIGN_PRIVACY",
@@ -106,13 +110,18 @@ format_strs = {
 	types.DELETION_QUEUED: em("{count} messages matched, deletion was queued."),
 	types.PROMOTED_MOD: em("You've been promoted to moderator, run /modhelp for a list of commands."),
 	types.PROMOTED_ADMIN: em("You've been promoted to admin, run /adminhelp for a list of commands."),
-	types.KARMA_THANK_YOU: em("You just gave this user some sweet karma, awesome!"),
+	types.KARMA_THANK_YOU: em("You just gave this user some sweet sugar, awesome!"),
 	types.KARMA_NOTIFICATION:
-		em( "You've just been given sweet karma! (check /info to see your karma"+
+		em( "You've just been fed! (check /info to see your karma"+
 			" or /toggleKarma to turn these notifications off)" ),
+	types.DM_REQUEST_NOTIFICATION: lambda id, username, **_: ("<a href=\"tg://user?id={id}\">{username!x}</a>")+
+			em(" has requested contact in response to this message."+ 
+			"\nRun /toggleRequests to turn these notifications off." ),
+	types.DM_REQUEST_ACKNOWLEDGEMENT: em("Your username has been forwarded to this message's author."),
 	types.TRIPCODE_INFO: lambda tripcode, **_:
 		"<b>tripcode</b>: " + ("<code>{tripcode!x}</code>" if tripcode is not None else "unset"),
 	types.TRIPCODE_SET: em("Tripcode set. It will appear as: ") + "<b>{tripname!x}</b> <code>{tripcode!x}</code>",
+	types.MESSAGE_SPOILERED: em("Thank you for your consideration. Your last message was spoilered."),
 
 	types.ERR_COMMAND_DISABLED: em("This command has been disabled."),
 	types.ERR_NO_REPLY: em("You need to reply to a message to use this command."),
@@ -127,6 +136,7 @@ format_strs = {
 		( em("\ncontact:") + " {contact}" if contact else "" ),
 	types.ERR_ALREADY_UPVOTED: em("You have already upvoted this message."),
 	types.ERR_UPVOTE_OWN_MESSAGE: em("You can't upvote your own message."),
+	types.ERR_DM_REQUEST_OWN_MESSAGE: em("You can't request to DM yourself."),
 	types.ERR_SPAMMY: em("Your message has not been sent. Avoid sending messages too fast, try again later."),
 	types.ERR_SPAMMY_SIGN: em("Your message has not been sent. Avoid using /sign too often, try again later."),
 	types.ERR_SIGN_PRIVACY: em("Your account privacy settings prevent usage of the sign feature. Enable linked forwards first."),
@@ -150,13 +160,13 @@ format_strs = {
 		"<b>cooldown</b>: "+
 		( cooldown and "yes, until {cooldown!t}" or "no" ),
 	types.USER_NEW_ID: lambda id, **_:
-		em("Your new government generated ID: ") + "<code>{id}</code>",
+		em("Your new generated ID: ") + "<code>{id}</code>",
 	types.USERS_INFO: "<b>{count}</b> <i>users</i>",
 	types.USERS_INFO_EXTENDED:
 		"<b>{active}</b> <i>active</i>, {inactive} <i>inactive and</i> "+
 		"{blacklisted} <i>blacklisted users</i> (<i>total</i>: {total})",
 
-	types.PROGRAM_VERSION: "secretlounge-ng v{version} ~ https://github.com/secretlounge/secretlounge-ng",
+	types.PROGRAM_VERSION: "secretlounge-ng-ng v{version} ~ https://github.com/secretlounge-ng/secretlounge-ng/tree/master",
 	types.HELP_MODERATOR:
 		"<i>Moderators can use the following commands</i>:\n"+
 		"  /modhelp - show this text\n"+

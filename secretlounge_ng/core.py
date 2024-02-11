@@ -16,6 +16,7 @@ sign_last_used = {} # uid -> datetime
 
 blacklist_contact = None
 enable_signing = None
+enable_tripcode = None
 allow_remove_command = None
 media_limit_period = None
 sign_interval = None
@@ -23,13 +24,14 @@ id_refresh_interval = None
 id_visible = None
 
 def init(config, _db, _ch):
-	global db, ch, spam_scores, blacklist_contact, enable_signing, allow_remove_command, media_limit_period, sign_interval, id_refresh_interval, id_visible
+	global db, ch, spam_scores, blacklist_contact, enable_signing, enable_tripcode, allow_remove_command, media_limit_period, sign_interval, id_refresh_interval, id_visible
 	db = _db
 	ch = _ch
 	spam_scores = ScoreKeeper()
 
 	blacklist_contact = config.get("blacklist_contact", "")
 	enable_signing = config["enable_signing"]
+	enable_tripcode = config["enable_tripcode"]
 	allow_remove_command = config["allow_remove_command"]
 	if "media_limit_period" in config.keys():
 		media_limit_period = timedelta(hours=int(config["media_limit_period"]))
@@ -318,15 +320,22 @@ def toggle_karma(user):
 	return rp.Reply(rp.types.BOOLEAN_CONFIG, description="Karma notifications", enabled=not new)
 
 @requireUser
+def toggle_requests(user):
+	with db.modifyUser(id=user.id) as user:
+		user.hideRequests = not user.hideRequests
+		new = user.hideRequests
+	return rp.Reply(rp.types.BOOLEAN_CONFIG, description="DM request notifications", enabled=not new)
+
+@requireUser
 def get_tripcode(user):
-	if not enable_signing:
+	if not enable_tripcode:
 		return rp.Reply(rp.types.ERR_COMMAND_DISABLED)
 
 	return rp.Reply(rp.types.TRIPCODE_INFO, tripcode=user.tripcode)
 
 @requireUser
 def set_tripcode(user, text):
-	if not enable_signing:
+	if not enable_tripcode:
 		return rp.Reply(rp.types.ERR_COMMAND_DISABLED)
 
 	if not 0 < text.find("#") < len(text) - 1:
@@ -492,13 +501,26 @@ def give_karma(user, msid):
 		_push_system_message(rp.Reply(rp.types.KARMA_NOTIFICATION), who=user2, reply_to=msid)
 	return rp.Reply(rp.types.KARMA_THANK_YOU)
 
+@requireUser
+def request_dm(user, msid):
+	cm = ch.getMessage(msid)
+	if cm is None or cm.user_id is None:
+		return rp.Reply(rp.types.ERR_NOT_IN_CACHE)
+	if user.id == cm.user_id:
+		return rp.Reply(rp.types.ERR_DM_REQUEST_OWN_MESSAGE)
+	user2 = db.getUser(id=cm.user_id)
+	if not user2.hideRequests:
+		_push_system_message(rp.Reply(rp.types.DM_REQUEST_NOTIFICATION, id=user.id, username=user.getFormattedName()), who=user2, reply_to=msid)
+	return rp.Reply(rp.types.DM_REQUEST_ACKNOWLEDGEMENT)
 
 @requireUser
 def prepare_user_message(user: User, msg_score, *, is_media=False, signed=False, tripcode=False):
 	# prerequisites
 	if user.isInCooldown():
 		return rp.Reply(rp.types.ERR_COOLDOWN, until=user.cooldownUntil)
-	if (signed or tripcode) and not enable_signing:
+	if (signed) and not enable_signing:
+		return rp.Reply(rp.types.ERR_COMMAND_DISABLED)
+	if (tripcode) and not enable_tripcode:
 		return rp.Reply(rp.types.ERR_COMMAND_DISABLED)
 	if tripcode and user.tripcode is None:
 		return rp.Reply(rp.types.ERR_NO_TRIPCODE)

@@ -72,10 +72,10 @@ def init(config, _db, _ch):
 	types += ["animation", "audio", "photo", "sticker", "video", "video_note", "voice"]
 
 	cmds = [
-		"start", "stop", "users", "info", "motd", "toggledebug", "togglekarma",
-		"version", "source", "modhelp", "adminhelp", "modsay", "adminsay", "mod",
-		"admin", "warn", "delete", "remove", "uncooldown", "blacklist", "s", "sign",
-		"tripcode", "t", "tsign", "cleanup"
+		"start", "stop", "users", "info", "motd", "toggledebug", "togglekarma", 
+		"togglerequests", "version", "source", "modhelp", "adminhelp", "modsay", 
+		"adminsay", "mod", "admin", "warn", "delete", "remove", "uncooldown", 
+		"blacklist", "s", "sign", "dm", "tripcode", "t", "tsign", "cleanup"
 	]
 	for c in cmds: # maps /<c> to the function cmd_<c>
 		c = c.lower()
@@ -376,6 +376,7 @@ def resend_message(chat_id, ev, reply_to=None, force_caption: Optional[Formatted
 				kwargs["parse_mode"] = "HTML"
 		else:
 			kwargs["caption"] = ev.caption
+		kwargs["has_spoiler"] = ev.has_media_spoiler
 
 	# re-send message based on content type
 	if ev.content_type == "text":
@@ -593,6 +594,7 @@ def cmd_motd(ev, arg):
 
 cmd_toggledebug = wrap_core(core.toggle_debug)
 cmd_togglekarma = wrap_core(core.toggle_karma)
+cmd_togglerequests = wrap_core(core.toggle_requests)
 
 @takesArgument(optional=True)
 def cmd_tripcode(ev, arg):
@@ -694,7 +696,6 @@ def plusone(ev):
 		return send_answer(ev, rp.Reply(rp.types.ERR_NOT_IN_CACHE), True)
 	return send_answer(ev, core.give_karma(c_user, reply_msid), True)
 
-
 def relay(ev):
 	# handle commands and karma giving
 	if ev.content_type == "text":
@@ -739,6 +740,8 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False):
 		tchat = bot.get_chat(user.id)
 		if tchat.has_private_forwards:
 			return send_answer(ev, rp.Reply(rp.types.ERR_SIGN_PRIVACY))
+	
+	is_spoilered = hasattr(ev, "has_media_spoiler") and ev.has_media_spoiler
 
 	# apply text formatting to text or caption (if media)
 	ev_tosend = ev
@@ -762,6 +765,9 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False):
 		else:
 			force_caption = fmt
 
+	if is_spoilered:
+		ev_tosend.has_media_spoiler = True
+
 	# find out which message is being replied to
 	reply_msid = None
 	if ev.reply_to_message is not None:
@@ -774,9 +780,12 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False):
 	for user2 in db.iterateUsers():
 		if not user2.isJoined():
 			continue
-		if user2 == user and not user.debugEnabled:
-			ch.saveMapping(user2.id, msid, ev.message_id)
-			continue
+		if user2 == user:
+			if is_spoilered:
+				send_answer(ev, rp.Reply(rp.types.MESSAGE_SPOILERED), True)
+			if not user.debugEnabled:
+				ch.saveMapping(user2.id, msid, ev.message_id)
+				continue
 
 		send_to_single(ev_tosend, msid, user2,
 			reply_msid=reply_msid, force_caption=force_caption)
@@ -794,3 +803,13 @@ def cmd_tsign(ev, arg):
 	relay_inner(ev, tripcode=True)
 
 cmd_t = cmd_tsign # alias
+
+def cmd_dm(ev):
+	c_user = UserContainer(ev.from_user)
+	if ev.reply_to_message is None:
+		return send_answer(ev, rp.Reply(rp.types.ERR_NO_REPLY), True)
+
+	reply_msid = ch.lookupMapping(ev.from_user.id, data=ev.reply_to_message.message_id)
+	if reply_msid is None:
+		return send_answer(ev, rp.Reply(rp.types.ERR_NOT_IN_CACHE), True)
+	return send_answer(ev, core.request_dm(c_user, reply_msid), True)
