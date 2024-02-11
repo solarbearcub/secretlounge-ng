@@ -217,7 +217,7 @@ class FormattedMessageBuilder():
 	text_content: str
 	# initialize builder with first argument that isn't None
 	def __init__(self, *args):
-		self.text_content = next(filter(lambda x: x is not None, args))
+		self.text_content = next(filter(lambda x: x is not None, args), '')
 		self.inserts = {}
 	def get_text(self):
 		return self.text_content
