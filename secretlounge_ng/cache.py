@@ -57,9 +57,9 @@ class Cache():
 				functor(msid, cm)
 	def userInCache(self, uid: int):
 		with self.lock:
-			if uid in self.idmap.keys():
-				if len(self.idmap[uid]) > 0:
-					return true
+			for msg in self.msgs:
+				if msg.user_id == uid:
+					return True
 			return False
 	def saveMapping(self, uid: int, msid: int, data):
 		with self.lock:
