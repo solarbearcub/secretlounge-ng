@@ -295,9 +295,9 @@ def formatter_signed_message(user: core.User, fmt: FormattedMessageBuilder):
 
 # Include obfuscated ID for [ID: xxxx] syntax
 def formatter_identified_message(user: core.User, fmt: FormattedMessageBuilder):
-	fmt.append("\n\n<code>ID: ", True)
-	fmt.append(user.getObfuscatedId(id_refresh_interval))
-	fmt.append("</code>", True)
+	fmt.prepend("]</code> ", True)
+	fmt.prepend(user.getObfuscatedId(id_refresh_interval))
+	fmt.prepend("<code>[", True)
 
 # Add tripcode message formatting for User `user` to `fmt`
 def formatter_tripcoded_message(user: core.User, fmt: FormattedMessageBuilder):
