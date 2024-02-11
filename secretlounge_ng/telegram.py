@@ -748,7 +748,7 @@ def relay_inner(ev, *, caption_text=None, signed=False, tripcode=False):
 	force_caption = None
 	if is_forward(ev):
 		pass # leave message alone
-	elif:
+	else:
 		fmt = FormattedMessageBuilder(caption_text, ev.caption, ev.text)
 		formatter_replace_links(ev, fmt)
 		formatter_network_links(fmt)
