@@ -58,7 +58,7 @@ class Cache():
 	def userInCache(self, uid: int):
 		with self.lock:
 			for msg in self.msgs:
-				if msg.user_id == uid:
+				if self.msgs[msg].user_id == uid:
 					return True
 			return False
 	def saveMapping(self, uid: int, msid: int, data):
