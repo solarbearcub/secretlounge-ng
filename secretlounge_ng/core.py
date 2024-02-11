@@ -232,6 +232,8 @@ def user_join(c_user):
 	if motd != "":
 		ret.append(rp.Reply(rp.types.CUSTOM, text=motd))
 
+	_push_system_message(rp.Reply(rp.types.USER_NEW_ID, id=user.getObfuscatedId(id_refresh_interval)), who=user)
+
 	return ret
 
 def force_user_leave(user_id, blocked=True):
